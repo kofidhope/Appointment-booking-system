@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres
+    container_name: appointment_db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: appointment_booking
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - spring
+
+
+volumes:
+  postgres:
+    driver: local
+networks:
+  spring:
+    driver: bridge
