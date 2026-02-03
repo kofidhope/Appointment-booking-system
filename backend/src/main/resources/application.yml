@@ -18,3 +18,7 @@ spring:
     show-sql: true
 server:
   port: 8088
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
