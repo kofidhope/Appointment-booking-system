@@ -50,6 +50,6 @@ public class User {
     @PrePersist
     private void onCreate(){
         this.createdAt = LocalDateTime.now();
-        this.enabled = true;
+        //this.enabled = true;
     }
 }

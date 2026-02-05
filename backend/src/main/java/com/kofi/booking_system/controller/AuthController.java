@@ -3,6 +3,7 @@ package com.kofi.booking_system.controller;
 import com.kofi.booking_system.dto.AuthResponse;
 import com.kofi.booking_system.dto.LoginRequest;
 import com.kofi.booking_system.dto.RegisterRequest;
+import com.kofi.booking_system.dto.ValidationRequest;
 import com.kofi.booking_system.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,21 @@ public class AuthController {
         authService.register(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body("User Registered successfully");
+                .body("User Registered successfully. Check your mail for OTP");
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request){
         AuthResponse authResponse = authService.login(request);
         return ResponseEntity.ok(authResponse);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(@RequestBody ValidationRequest request){
+        authService.verifyOtp(request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("OTP Verified successfully");
     }
 
 }

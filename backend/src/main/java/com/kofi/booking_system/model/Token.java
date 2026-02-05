@@ -12,15 +12,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "token")
-public class VerificationToken {
+public class Token {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String otp;
+    @Column(unique = true,nullable = false)
+    private String token;
 
-    private LocalDateTime expiryDate;
+    private LocalDateTime createdAt;
+
+    private LocalDateTime expiresAt;
+
+    private LocalDateTime validatedAt;
 
     @OneToOne
     @JoinColumn(name = "user_id",nullable = false)
