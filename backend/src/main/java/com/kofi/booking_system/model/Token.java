@@ -22,7 +22,7 @@ public class VerificationToken {
 
     private LocalDateTime expiryDate;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 }
