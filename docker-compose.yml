@@ -13,6 +13,15 @@ services:
     networks:
       - spring
 
+  mail-dev:
+    container_name: mail-dev-abs
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+    networks:
+      - spring
+
 
 volumes:
   postgres:
