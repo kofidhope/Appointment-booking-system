@@ -3,11 +3,11 @@ package com.kofi.booking_system.controller;
 import com.kofi.booking_system.dto.AuthResponse;
 import com.kofi.booking_system.dto.LoginRequest;
 import com.kofi.booking_system.dto.RegisterRequest;
-import com.kofi.booking_system.dto.ValidationRequest;
+import com.kofi.booking_system.dto.VerifyOtpRequest;
 import com.kofi.booking_system.service.AuthService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +23,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request){
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) throws MessagingException {
         authService.register(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -37,11 +37,18 @@ public class AuthController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody ValidationRequest request){
+    public ResponseEntity<String> verifyOtp(@RequestBody VerifyOtpRequest request){
         authService.verifyOtp(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body("OTP Verified successfully");
+    }
+    @PostMapping("/resend-otp")
+    public ResponseEntity<String> resendOtp(@RequestBody VerifyOtpRequest request) throws MessagingException {
+        authService.resendOtp(request);
+        return  ResponseEntity
+                .status(HttpStatus.OK)
+                .body("OTP Resend successfully");
     }
 
 }

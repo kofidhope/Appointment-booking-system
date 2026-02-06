@@ -5,12 +5,13 @@ import com.kofi.appointmentbookingsystem.exception.ResourceAlreadyExistsExceptio
 import com.kofi.booking_system.dto.AuthResponse;
 import com.kofi.booking_system.dto.LoginRequest;
 import com.kofi.booking_system.dto.RegisterRequest;
-import com.kofi.booking_system.dto.ValidationRequest;
+import com.kofi.booking_system.dto.VerifyOtpRequest;
 import com.kofi.booking_system.model.Role;
 import com.kofi.booking_system.model.Token;
 import com.kofi.booking_system.model.User;
 import com.kofi.booking_system.repository.TokenRepository;
 import com.kofi.booking_system.repository.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
 
-    public void register(RegisterRequest request){
+    public void register(RegisterRequest request) throws MessagingException {
         //1.check if the email exist
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResourceAlreadyExistsException("Email already in use");
@@ -47,7 +48,7 @@ public class AuthService {
         sendValidationEmail(user);
     }
 
-    private void sendValidationEmail(User user) {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
         // TODO SEND EMAIL
         emailService.sendOtpEmail(user.getEmail(),newToken);
@@ -76,7 +77,7 @@ public class AuthService {
         return codeBuilder.toString();
     }
 
-    public void verifyOtp(ValidationRequest request){
+    public void verifyOtp(VerifyOtpRequest request){
         //1. fetch user
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new InvalidCredentialsException("User not found"));
@@ -103,9 +104,9 @@ public class AuthService {
         tokenRepository.save(otp);
     }
 
-    public void resendOtp(String email){
+    public void resendOtp(VerifyOtpRequest request) throws MessagingException {
         //1. fetch user
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new InvalidCredentialsException("User not found"));
         //2. check if the user is already enables
         if (user.isEnabled()){
@@ -114,7 +115,7 @@ public class AuthService {
         //3. Invalidate old OTP if exist
         tokenRepository.findByUserAndValidatedAtIsNull(user)
                 .ifPresent(token -> {
-                    token.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+                    token.setExpiresAt(LocalDateTime.now());
                     tokenRepository.save(token);
                 });
         //4. generate and send token to email
