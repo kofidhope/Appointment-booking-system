@@ -76,24 +76,65 @@ public class AuthService {
         return codeBuilder.toString();
     }
 
+    public void verifyOtp(ValidationRequest request){
+        //1. fetch user
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+        //2. fetch otp
+        Token otp = tokenRepository.findByToken(request.getOtp())
+                .orElseThrow(()-> new InvalidCredentialsException("Otp not found"));
+        //3. ensure the otp belongs to this user
+        if (!otp.getUser().getId().equals(user.getId())) {
+            throw new InvalidCredentialsException("Invalid OTP");
+        }
+        //4. check for expiry
+        if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidCredentialsException("Otp is expired");
+        }
+        //5. prevent re-verification
+        if(otp.getValidatedAt()!=null) {
+            throw new InvalidCredentialsException("OTP already used");
+        }
+        //6. enable and save user
+        user.setEnabled(true);
+        userRepository.save(user);
+        //7. Mark otp as validated
+        otp.setValidatedAt(LocalDateTime.now());
+        tokenRepository.save(otp);
+    }
+
+    public void resendOtp(String email){
+        //1. fetch user
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+        //2. check if the user is already enables
+        if (user.isEnabled()){
+            throw new InvalidCredentialsException("Account Already verified.");
+        }
+        //3. Invalidate old OTP if exist
+        tokenRepository.findByUserAndValidatedAtIsNull(user)
+                .ifPresent(token -> {
+                    token.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+                    tokenRepository.save(token);
+                });
+        //4. generate and send token to email
+        sendValidationEmail(user);
+    }
+
     public AuthResponse login(LoginRequest request){
         //1. find the email if exist or throw and error
         User user = (userRepository.findByEmail(request.getEmail()))
                 .orElseThrow(()-> new InvalidCredentialsException("Invalid email or password"));
-
         // check if the account is verified
         if (!user.isEnabled()) {
             throw new InvalidCredentialsException("Account not verified. Please verify your email.");
         }
-
         // check if the password matches
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new InvalidCredentialsException("Invalid email or password");
         }
-
         // 3. generate JWT token with subject and role
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
-
         //4. build a response object
         AuthResponse response = new AuthResponse();
         response.setUserId(user.getId());
@@ -101,36 +142,4 @@ public class AuthService {
         return response;
     }
 
-    public void verifyOtp(ValidationRequest request){
-        //1. fetch user
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
-
-        //2. fetch otp
-        Token otp = tokenRepository.findByTokenAndValidatedAtIsNull(request.getOtp())
-                .orElseThrow(()-> new InvalidCredentialsException("Otp not found"));
-
-        //3. ensure the otp belongs to this user
-        if (!otp.getUser().getId().equals(user.getId())) {
-            throw new InvalidCredentialsException("Invalid OTP");
-        }
-
-        //4. check for expiry
-        if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidCredentialsException("Otp is expired");
-        }
-
-        //5. prevent re-verification
-       if(otp.getValidatedAt()!=null) {
-           throw new InvalidCredentialsException("OTP already used");
-       }
-
-        //6. enable and save user
-        user.setEnabled(true);
-        userRepository.save(user);
-
-        //7. Mark otp as validated
-        otp.setValidatedAt(LocalDateTime.now());
-        tokenRepository.save(otp);
-    }
 }
