@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Account Verification</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .otp {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            letter-spacing: 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Welcome to Booking System 👋</h2>
+
+    <p>Hello,</p>
+
+    <p>
+        To activate your account, please use the verification code below:
+    </p>
+
+    <p class="otp" th:text="${otp}"></p>
+
+    <p>
+        This code will expire in <b>10 minutes</b>.
+    </p>
+
+    <p>
+        If you did not create this account, please ignore this email.
+    </p>
+
+    <hr/>
+
+    <p>Booking System Team</p>
+</div>
+</body>
+</html>
