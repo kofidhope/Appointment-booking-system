@@ -1,36 +1,37 @@
 package com.kofi.booking_system.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
-    public void sendOtpEmail(String toEmail, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("Account Verification – Booking System");
+    public void sendOtpEmail(String toEmail, String otp) throws MessagingException {
 
-        message.setText("""
-            Hello,
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED,"UTF-8");
 
-            Welcome to Booking System
+        //Thymeleaf context
+        Context context = new Context();
+        context.setVariable("otp", otp);
+        //process the html template
+        String htmlContent = templateEngine.process("email_template", context);
 
-            To activate your account, please use the verification code below:
-
-            Verification Code: %s
-
-            This code will expire in 10 minutes.
-            If you did not create this account, please ignore this email.
-
-            Best regards,
-            Booking System Team
-            """.formatted(otp));
+        helper.setTo(toEmail);
+        helper.setSubject("Verify your account");
+        helper.setText(htmlContent,true);
 
         mailSender.send(message);
     }
