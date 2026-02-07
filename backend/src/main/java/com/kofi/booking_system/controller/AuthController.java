@@ -1,9 +1,6 @@
 package com.kofi.booking_system.controller;
 
-import com.kofi.booking_system.dto.AuthResponse;
-import com.kofi.booking_system.dto.LoginRequest;
-import com.kofi.booking_system.dto.RegisterRequest;
-import com.kofi.booking_system.dto.VerifyOtpRequest;
+import com.kofi.booking_system.dto.*;
 import com.kofi.booking_system.service.AuthService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -44,11 +41,25 @@ public class AuthController {
                 .body("OTP Verified successfully");
     }
     @PostMapping("/resend-otp")
-    public ResponseEntity<String> resendOtp(@RequestBody VerifyOtpRequest request) throws MessagingException {
+    public ResponseEntity<String> resendOtp(@RequestBody ResendOtpRequest request) throws MessagingException {
         authService.resendOtp(request);
         return  ResponseEntity
                 .status(HttpStatus.OK)
                 .body("OTP Resend successfully");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
+        authService.forgotPassword(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Otp sent successfully");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequest request) throws MessagingException {
+        authService.resetPassword(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Otp sent successfully");
     }
 
 }

@@ -2,16 +2,15 @@ package com.kofi.booking_system.service;
 
 import com.kofi.appointmentbookingsystem.exception.InvalidCredentialsException;
 import com.kofi.appointmentbookingsystem.exception.ResourceAlreadyExistsException;
-import com.kofi.booking_system.dto.AuthResponse;
-import com.kofi.booking_system.dto.LoginRequest;
-import com.kofi.booking_system.dto.RegisterRequest;
-import com.kofi.booking_system.dto.VerifyOtpRequest;
+import com.kofi.booking_system.dto.*;
 import com.kofi.booking_system.model.Role;
 import com.kofi.booking_system.model.Token;
 import com.kofi.booking_system.model.User;
 import com.kofi.booking_system.repository.TokenRepository;
 import com.kofi.booking_system.repository.UserRepository;
 import jakarta.mail.MessagingException;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,7 +103,7 @@ public class AuthService {
         tokenRepository.save(otp);
     }
 
-    public void resendOtp(VerifyOtpRequest request) throws MessagingException {
+    public void resendOtp(ResendOtpRequest request) throws MessagingException {
         //1. fetch user
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new InvalidCredentialsException("User not found"));
@@ -120,6 +119,43 @@ public class AuthService {
                 });
         //4. generate and send token to email
         sendValidationEmail(user);
+    }
+
+    public void forgotPassword(ForgotPasswordRequest request) throws MessagingException {
+        //1. fetch the user if exist
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+        //2.send OTP to the email
+        sendValidationEmail(user);
+    }
+
+    public void resetPassword(ResetPasswordRequest request) throws MessagingException {
+        //1.fetch the user
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+        //2. fetch the token
+        Token otp = tokenRepository.findByToken(request.getOtp())
+                .orElseThrow(()-> new InvalidCredentialsException("Otp not found"));
+        //3. check if hte email belongs to the user
+        if (!otp.getUser().getId().equals(user.getId())) {
+            throw new InvalidCredentialsException("Invalid OTP");
+        }
+        //4. check the expiry of the token
+        if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidCredentialsException("Otp is expired");
+        }
+        //.5 check if otp is not validated
+        if (otp.getValidatedAt()!=null) {
+            throw new InvalidCredentialsException("OTP already used");
+        }
+        //6. update password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        //7.Mark otp as used
+        otp.setValidatedAt(LocalDateTime.now());
+        tokenRepository.save(otp);
+
     }
 
     public AuthResponse login(LoginRequest request){
