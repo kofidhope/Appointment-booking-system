@@ -3,19 +3,17 @@ package com.kofi.booking_system.service;
 import com.kofi.appointmentbookingsystem.exception.InvalidCredentialsException;
 import com.kofi.appointmentbookingsystem.exception.ResourceAlreadyExistsException;
 import com.kofi.booking_system.dto.*;
+import com.kofi.booking_system.model.RefreshToken;
 import com.kofi.booking_system.model.Role;
 import com.kofi.booking_system.model.Token;
 import com.kofi.booking_system.model.User;
 import com.kofi.booking_system.repository.TokenRepository;
 import com.kofi.booking_system.repository.UserRepository;
 import jakarta.mail.MessagingException;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 @Service
@@ -26,7 +24,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
-    private final EmailService emailService;
+    private final OtpService otpService;
+    private final RefreshTokenService refreshTokenService;
 
     public void register(RegisterRequest request) throws MessagingException {
         //1.check if the email exist
@@ -44,37 +43,9 @@ public class AuthService {
                 .build();
         //3.save the user
         userRepository.save(user);
-        sendValidationEmail(user);
+       otpService.sendValidationEmail(user);
     }
 
-    private void sendValidationEmail(User user) throws MessagingException {
-        var newToken = generateAndSaveActivationToken(user);
-        // TODO SEND EMAIL
-        emailService.sendOtpEmail(user.getEmail(),newToken);
-    }
-
-    private String generateAndSaveActivationToken(User user) {
-        String generateToken = generateCode(6);
-        var token = Token.builder()
-                .token(generateToken)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(10))
-                .user(user)
-                .build();
-        tokenRepository.save(token);
-        return generateToken;
-    }
-
-    private String generateCode(int length) {
-        String characters = "0123456789";
-        StringBuilder codeBuilder = new StringBuilder();
-        SecureRandom random = new SecureRandom();
-        for (int i = 0; i < length; i++) {
-            int randomIndex = random.nextInt(characters.length());
-            codeBuilder.append(characters.charAt(randomIndex));
-        }
-        return codeBuilder.toString();
-    }
 
     public void verifyOtp(VerifyOtpRequest request){
         //1. fetch user
@@ -118,7 +89,7 @@ public class AuthService {
                     tokenRepository.save(token);
                 });
         //4. generate and send token to email
-        sendValidationEmail(user);
+        otpService.sendValidationEmail(user);
     }
 
     public void forgotPassword(ForgotPasswordRequest request) throws MessagingException {
@@ -126,7 +97,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new InvalidCredentialsException("User not found"));
         //2.send OTP to the email
-        sendValidationEmail(user);
+        otpService.sendValidationEmail(user);
     }
 
     public void resetPassword(ResetPasswordRequest request) throws MessagingException {
@@ -172,10 +143,28 @@ public class AuthService {
         }
         // 3. generate JWT token with subject and role
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
-        //4. build a response object
+        //4. Generate refresh token
+        RefreshToken refreshToken = refreshTokenService.create(user);
+        //5. build a response object
         AuthResponse response = new AuthResponse();
         response.setUserId(user.getId());
         response.setToken(token);
+        response.setRefreshToken(refreshToken.getToken());
+        return response;
+    }
+
+    public AuthResponse refreshToken(RefreshTokenRequest request){
+
+        RefreshToken refreshToken = refreshTokenService.verify(request.getRefreshToken());
+
+        User user = refreshToken.getUser();
+
+        String newAccessToken = jwtService.generateToken(user.getEmail(), user.getRole().name());
+
+        AuthResponse response = new AuthResponse();
+        response.setUserId(user.getId());
+        response.setToken(newAccessToken);
+        response.setRefreshToken(refreshToken.getToken());
         return response;
     }
 

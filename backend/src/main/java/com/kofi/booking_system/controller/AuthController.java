@@ -1,7 +1,9 @@
 package com.kofi.booking_system.controller;
 
 import com.kofi.booking_system.dto.*;
+import com.kofi.booking_system.model.RefreshToken;
 import com.kofi.booking_system.service.AuthService;
+import com.kofi.booking_system.service.RefreshTokenService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -61,5 +63,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Otp sent successfully");
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(
+            @RequestBody RefreshTokenRequest request) {
+
+        return ResponseEntity.ok(authService.refreshToken(request));
+    }
+
 
 }
