@@ -153,19 +153,31 @@ public class AuthService {
         return response;
     }
 
-    public AuthResponse refreshToken(RefreshTokenRequest request){
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
 
-        RefreshToken refreshToken = refreshTokenService.verify(request.getRefreshToken());
+        // 1. Verify old refresh token
+        RefreshToken oldToken = refreshTokenService.verify(request.getRefreshToken());
 
-        User user = refreshToken.getUser();
+        User user = oldToken.getUser();
 
-        String newAccessToken = jwtService.generateToken(user.getEmail(), user.getRole().name());
+        // 2. Revoke old refresh token
+        refreshTokenService.revoke(oldToken);
 
+        // 3. Create NEW refresh token
+        RefreshToken newRefreshToken = refreshTokenService.create(user);
+
+        // 4. Create new access token
+        String newAccessToken =
+                jwtService.generateToken(user.getEmail(), user.getRole().name());
+
+        // 5. Respond
         AuthResponse response = new AuthResponse();
         response.setUserId(user.getId());
         response.setToken(newAccessToken);
-        response.setRefreshToken(refreshToken.getToken());
+        response.setRefreshToken(newRefreshToken.getToken());
+
         return response;
     }
+
 
 }

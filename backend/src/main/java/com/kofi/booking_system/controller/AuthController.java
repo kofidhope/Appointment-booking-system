@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) throws MessagingException {
@@ -71,5 +72,14 @@ public class AuthController {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(
+            @RequestBody RefreshTokenRequest request) {
+
+        RefreshToken token = refreshTokenService.verify(request.getRefreshToken());
+        refreshTokenService.revoke(token);
+
+        return ResponseEntity.ok("Logged out successfully");
+    }
 
 }
