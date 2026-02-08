@@ -44,6 +44,9 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
+    private int failedLoginAttempt;
+    private LocalDateTime lockUntil;
+
     @Column(updatable = false,nullable = false)
     private LocalDateTime createdAt;
 

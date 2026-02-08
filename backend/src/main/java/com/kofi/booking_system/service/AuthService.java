@@ -133,19 +133,46 @@ public class AuthService {
         //1. find the email if exist or throw and error
         User user = (userRepository.findByEmail(request.getEmail()))
                 .orElseThrow(()-> new InvalidCredentialsException("Invalid email or password"));
-        // check if the account is verified
+        //2. check if the account is verified
         if (!user.isEnabled()) {
             throw new InvalidCredentialsException("Account not verified. Please verify your email.");
         }
-        // check if the password matches
+
+        //3. check if account is locked
+        if(user.getLockUntil()!=null && user.getLockUntil().isAfter(LocalDateTime.now())){
+            throw new InvalidCredentialsException("Account locked. Try again after " + user.getLockUntil());
+        }
+        //4. auto-unlock if lock expired
+        if (user.getLockUntil() != null &&
+                user.getLockUntil().isBefore(LocalDateTime.now())) {
+
+            user.setLockUntil(null);
+            user.setFailedLoginAttempt(0);
+        }
+        //5. check if the password matches
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+
+            //increment failed attempt
+            int attempts = user.getFailedLoginAttempt()+1;
+            user.setFailedLoginAttempt(attempts);
+            //lock account if threshold is reached
+            if (attempts >= 5){
+                user.setLockUntil(LocalDateTime.now().plusMinutes(10));
+            }
+            userRepository.save(user);
             throw new InvalidCredentialsException("Invalid email or password");
         }
-        // 3. generate JWT token with subject and role
+
+        //6. successful login -> reset counter
+        user.setFailedLoginAttempt(0);
+        user.setLockUntil(null);
+        userRepository.save(user);
+
+        //7. generate JWT token with subject and role
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
-        //4. Generate refresh token
+        //8. Generate refresh token
         RefreshToken refreshToken = refreshTokenService.create(user);
-        //5. build a response object
+        //9. build a response object
         AuthResponse response = new AuthResponse();
         response.setUserId(user.getId());
         response.setToken(token);
