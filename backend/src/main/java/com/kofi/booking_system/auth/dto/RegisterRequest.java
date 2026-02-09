@@ -1,9 +1,7 @@
-package com.kofi.booking_system.dto;
+package com.kofi.booking_system.auth.dto;
 
-import com.kofi.booking_system.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

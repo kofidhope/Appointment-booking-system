@@ -1,7 +1,7 @@
-package com.kofi.booking_system.security;
+package com.kofi.booking_system.auth.security;
 
-import com.kofi.booking_system.service.CustomUserDetailsService;
-import com.kofi.booking_system.service.JwtService;
+import com.kofi.booking_system.auth.service.CustomUserDetailsService;
+import com.kofi.booking_system.auth.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

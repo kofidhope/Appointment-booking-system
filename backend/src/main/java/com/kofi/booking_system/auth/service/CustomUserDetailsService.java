@@ -1,7 +1,7 @@
-package com.kofi.booking_system.service;
+package com.kofi.booking_system.auth.service;
 
-import com.kofi.booking_system.model.User;
-import com.kofi.booking_system.repository.UserRepository;
+import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

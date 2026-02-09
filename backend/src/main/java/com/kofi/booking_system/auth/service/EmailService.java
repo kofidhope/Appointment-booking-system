@@ -1,4 +1,4 @@
-package com.kofi.booking_system.service;
+package com.kofi.booking_system.auth.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

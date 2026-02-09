@@ -1,4 +1,4 @@
-package com.kofi.booking_system.model;
+package com.kofi.booking_system.auth.model;
 
 public enum Role {
     CUSTOMER,

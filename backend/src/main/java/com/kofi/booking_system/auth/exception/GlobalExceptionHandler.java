@@ -1,4 +1,4 @@
-package com.kofi.appointmentbookingsystem.exception;
+package com.kofi.booking_system.auth.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.kofi.booking_system.dto;
+package com.kofi.booking_system.auth.dto;
 
 import lombok.Data;
 import lombok.Getter;

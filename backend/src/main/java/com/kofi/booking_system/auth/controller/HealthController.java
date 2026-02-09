@@ -1,4 +1,4 @@
-package com.kofi.booking_system.controller;
+package com.kofi.booking_system.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

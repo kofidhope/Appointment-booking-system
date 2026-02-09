@@ -1,14 +1,14 @@
-package com.kofi.booking_system.service;
+package com.kofi.booking_system.auth.service;
 
-import com.kofi.appointmentbookingsystem.exception.InvalidCredentialsException;
-import com.kofi.appointmentbookingsystem.exception.ResourceAlreadyExistsException;
-import com.kofi.booking_system.dto.*;
-import com.kofi.booking_system.model.RefreshToken;
-import com.kofi.booking_system.model.Role;
-import com.kofi.booking_system.model.Token;
-import com.kofi.booking_system.model.User;
-import com.kofi.booking_system.repository.TokenRepository;
-import com.kofi.booking_system.repository.UserRepository;
+import com.kofi.booking_system.auth.dto.*;
+import com.kofi.booking_system.auth.exception.InvalidCredentialsException;
+import com.kofi.booking_system.auth.exception.ResourceAlreadyExistsException;
+import com.kofi.booking_system.auth.model.RefreshToken;
+import com.kofi.booking_system.auth.model.Role;
+import com.kofi.booking_system.auth.model.Token;
+import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.auth.repository.TokenRepository;
+import com.kofi.booking_system.auth.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

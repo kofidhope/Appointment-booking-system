@@ -1,8 +1,8 @@
-package com.kofi.booking_system.service;
+package com.kofi.booking_system.auth.service;
 
-import com.kofi.booking_system.model.Token;
-import com.kofi.booking_system.model.User;
-import com.kofi.booking_system.repository.TokenRepository;
+import com.kofi.booking_system.auth.model.Token;
+import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.auth.repository.TokenRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

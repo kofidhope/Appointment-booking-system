@@ -1,4 +1,4 @@
-package com.kofi.appointmentbookingsystem.exception;
+package com.kofi.booking_system.auth.exception;
 
 public class InvalidCredentialsException extends RuntimeException {
     public InvalidCredentialsException(String message) {
