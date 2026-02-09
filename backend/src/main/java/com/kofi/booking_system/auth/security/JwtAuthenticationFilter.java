@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String email;
 
         //Check if the header is present and starts with "Bearer "
-        if (authorizationHeader == null || authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);  // continue if  no token
             return;
         }
