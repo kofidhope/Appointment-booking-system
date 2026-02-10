@@ -8,6 +8,10 @@ import com.kofi.booking_system.providerService.dto.ProviderServiceResponse;
 import com.kofi.booking_system.providerService.model.ProviderService;
 import com.kofi.booking_system.providerService.repository.ProviderServiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,19 +42,20 @@ public class ProviderServiceService {
 
     }
 
-    public List<ProviderServiceResponse> getServicesByProvider(Long providerId){
+    public Page<ProviderServiceResponse> getServicesByProvider(Long providerId,int page,int size){
         User provider = userRepository.findById(providerId)
                 .orElseThrow(()-> new RuntimeException("User not found with id: " + providerId));
-        return repository.findByProvider(provider)
-                .stream()
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+
+        return repository.findByProvider(provider,pageable)
                 .map(s -> new ProviderServiceResponse(
                         s.getId(),
                         s.getName(),
                         s.getDescription(),
                         s.getDurationMinutes(),
                         s.getPrice()
-                ))
-                .toList();
+                ));
     }
 
 }

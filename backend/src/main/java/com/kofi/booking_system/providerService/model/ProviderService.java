@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "providers")
+@Table(name = "provider_service")
 public class ProviderService {
 
     @Id
