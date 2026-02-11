@@ -1,0 +1,20 @@
+package com.kofi.booking_system.appointment.repository;
+
+import com.kofi.booking_system.appointment.enums.TimeSlot;
+import com.kofi.booking_system.appointment.model.Appointment;
+import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.providerService.model.ProviderService;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Optional;
+
+public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
+
+    /**
+     * Checks if a provider already has a booking
+     * for a given date and slot.
+     */
+    Optional<Appointment> findByAppointmentDateAndTimeSlot(User provider, LocalDate date, TimeSlot time);
+}
