@@ -3,6 +3,10 @@ package com.kofi.booking_system.appointment.service;
 
 import com.kofi.booking_system.appointment.dto.AppointmentResponse;
 import com.kofi.booking_system.appointment.dto.CreateAppointmentRequest;
+import com.kofi.booking_system.appointment.enums.TimeSlot;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public interface AppointmentService {
 
@@ -14,5 +18,5 @@ public interface AppointmentService {
 
     AppointmentResponse cancelAppointment(Long appointmentId, String providerEmail, String role);
 
-
+    List<TimeSlot> getAvailabilitySlots(Long providerId, LocalDate date);
 }

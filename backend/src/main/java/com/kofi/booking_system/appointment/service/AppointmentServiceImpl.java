@@ -3,6 +3,7 @@ package com.kofi.booking_system.appointment.service;
 import com.kofi.booking_system.appointment.dto.AppointmentResponse;
 import com.kofi.booking_system.appointment.dto.CreateAppointmentRequest;
 import com.kofi.booking_system.appointment.enums.AppointmentStatus;
+import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
 import com.kofi.booking_system.auth.model.User;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -110,6 +113,29 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment);
         return mapToResponse(appointment);
 
+    }
+
+    @Override
+    public List<TimeSlot> getAvailabilitySlots(Long providerId, LocalDate date) {
+        // fetch the provider
+        User provider = userRepository.findById(providerId)
+                .orElseThrow(()-> new RuntimeException("provider not found"));
+
+        //get all booking for the day
+        List<Appointment> appointments = appointmentRepository.findByProviderAndAppointmentDate(provider, date);
+
+        //extract taken slot
+        List<TimeSlot> takenSlots = appointments.stream()
+                .filter(a-> a.getStatus() == AppointmentStatus.PENDING
+                        || a.getStatus() == AppointmentStatus.CONFIRMED
+                )
+                .map(Appointment::getTimeSlot)
+                .toList();
+
+        //return the available ones
+        return Arrays.stream(TimeSlot.values())
+                .filter(slot-> !takenSlots.contains(slot))
+                .toList();
     }
 
     private AppointmentResponse mapToResponse(Appointment appointment) {
