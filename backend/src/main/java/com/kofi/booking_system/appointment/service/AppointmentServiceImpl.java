@@ -104,7 +104,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
         }
         //provider rule
-        if (role.equals("CUSTOMER")){
+        if (role.equals("SERVICE_PROVIDER")){
             if (!appointment.getProvider().getEmail().equals(email)) {
                 throw new RuntimeException("Not your appointment");
             }
@@ -116,7 +116,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<TimeSlot> getAvailabilitySlots(Long providerId, LocalDate date) {
+    public List<TimeSlot> getAvailableSlots(Long providerId, LocalDate date) {
         // fetch the provider
         User provider = userRepository.findById(providerId)
                 .orElseThrow(()-> new RuntimeException("provider not found"));

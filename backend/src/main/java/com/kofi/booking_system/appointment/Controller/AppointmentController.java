@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/appointment")
@@ -52,5 +54,14 @@ public class AppointmentController {
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+    @GetMapping("/availability/{providerId}")
+    public ResponseEntity<?> getAvailability(
+            @PathVariable Long providerId,
+            @RequestParam LocalDate date
+    ) {
+        return ResponseEntity.ok(appointmentService.getAvailableSlots(providerId, date));
+    }
+
 
 }
