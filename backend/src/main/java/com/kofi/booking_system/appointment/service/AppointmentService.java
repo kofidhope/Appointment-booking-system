@@ -8,4 +8,11 @@ public interface AppointmentService {
 
     AppointmentResponse bookAppointment(CreateAppointmentRequest request,String authenticatedEmail);
 
+    AppointmentResponse confirmAppointment(Long appointmentId, String providerEmail);
+
+    AppointmentResponse rejectAppointment(Long appointmentId, String providerEmail);
+
+    AppointmentResponse cancelAppointment(Long appointmentId, String providerEmail, String role);
+
+
 }

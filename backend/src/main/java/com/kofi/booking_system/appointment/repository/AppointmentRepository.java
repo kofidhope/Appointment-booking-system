@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
@@ -17,4 +18,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
      * for a given date and slot.
      */
     Optional<Appointment> findByAppointmentDateAndTimeSlot(User provider, LocalDate date, TimeSlot time);
+
+    List<Appointment> findByProviderAndAppointmentDate(User provider, LocalDate date);
 }
