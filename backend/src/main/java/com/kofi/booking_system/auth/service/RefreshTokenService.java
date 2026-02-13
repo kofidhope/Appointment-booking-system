@@ -1,9 +1,9 @@
 package com.kofi.booking_system.auth.service;
 
 import com.kofi.booking_system.auth.exception.InvalidCredentialsException;
-import com.kofi.booking_system.auth.model.RefreshToken;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.auth.repository.RefreshTokenRepository;
+import com.kofi.booking_system.user.model.RefreshToken;
+import com.kofi.booking_system.user.model.User;
+import com.kofi.booking_system.user.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

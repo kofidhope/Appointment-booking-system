@@ -2,12 +2,10 @@ package com.kofi.booking_system.appointment.repository;
 
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.providerService.model.ProviderService;
+import com.kofi.booking_system.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 

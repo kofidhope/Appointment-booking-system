@@ -1,8 +1,8 @@
 package com.kofi.booking_system.providerService.service;
 
-import com.kofi.booking_system.auth.model.Role;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.auth.repository.UserRepository;
+import com.kofi.booking_system.user.model.Role;
+import com.kofi.booking_system.user.model.User;
+import com.kofi.booking_system.user.repository.UserRepository;
 import com.kofi.booking_system.providerService.dto.CreateServiceRequest;
 import com.kofi.booking_system.providerService.dto.ProviderServiceResponse;
 import com.kofi.booking_system.providerService.model.ProviderService;
@@ -13,8 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

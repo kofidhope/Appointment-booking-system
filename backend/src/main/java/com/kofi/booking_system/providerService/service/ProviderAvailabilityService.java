@@ -1,8 +1,8 @@
 package com.kofi.booking_system.providerService.service;
 
-import com.kofi.booking_system.auth.model.Role;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.auth.repository.UserRepository;
+import com.kofi.booking_system.user.model.Role;
+import com.kofi.booking_system.user.model.User;
+import com.kofi.booking_system.user.repository.UserRepository;
 import com.kofi.booking_system.providerService.dto.CreateAvailabilityRequest;
 import com.kofi.booking_system.providerService.model.ProviderAvailability;
 import com.kofi.booking_system.providerService.repository.ProviderAvailabilityRepository;

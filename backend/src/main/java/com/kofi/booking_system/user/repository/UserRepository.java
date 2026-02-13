@@ -1,6 +1,6 @@
-package com.kofi.booking_system.auth.repository;
+package com.kofi.booking_system.user.repository;
 
-import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

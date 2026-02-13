@@ -1,4 +1,4 @@
-package com.kofi.booking_system.auth.model;
+package com.kofi.booking_system.user.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

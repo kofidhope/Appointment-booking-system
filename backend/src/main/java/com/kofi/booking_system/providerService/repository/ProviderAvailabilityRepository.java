@@ -1,6 +1,6 @@
 package com.kofi.booking_system.providerService.repository;
 
-import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.providerService.model.ProviderAvailability;
 import org.springframework.data.jpa.repository.JpaRepository;
 

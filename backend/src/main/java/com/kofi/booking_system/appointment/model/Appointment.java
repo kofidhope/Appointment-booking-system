@@ -2,8 +2,7 @@ package com.kofi.booking_system.appointment.model;
 
 import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.providerService.model.ProviderService;
+import com.kofi.booking_system.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 

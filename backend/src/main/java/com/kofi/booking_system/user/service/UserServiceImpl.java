@@ -1,8 +1,8 @@
 package com.kofi.booking_system.user.service;
 
 import com.kofi.booking_system.auth.exception.InvalidCredentialsException;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.auth.repository.UserRepository;
+import com.kofi.booking_system.user.model.User;
+import com.kofi.booking_system.user.repository.UserRepository;
 import com.kofi.booking_system.user.dto.UpdateUserRequest;
 import com.kofi.booking_system.user.dto.UserResponse;
 import lombok.AllArgsConstructor;

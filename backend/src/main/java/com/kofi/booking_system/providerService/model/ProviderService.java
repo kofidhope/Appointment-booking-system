@@ -1,6 +1,6 @@
 package com.kofi.booking_system.providerService.model;
 
-import com.kofi.booking_system.auth.model.User;
+import com.kofi.booking_system.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 

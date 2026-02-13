@@ -6,8 +6,8 @@ import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
-import com.kofi.booking_system.auth.model.User;
-import com.kofi.booking_system.auth.repository.UserRepository;
+import com.kofi.booking_system.user.model.User;
+import com.kofi.booking_system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

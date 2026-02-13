@@ -1,7 +1,7 @@
 package com.kofi.booking_system.auth.controller;
 
 import com.kofi.booking_system.auth.dto.*;
-import com.kofi.booking_system.auth.model.RefreshToken;
+import com.kofi.booking_system.user.model.RefreshToken;
 import com.kofi.booking_system.auth.service.AuthService;
 import com.kofi.booking_system.auth.service.RefreshTokenService;
 import jakarta.mail.MessagingException;
