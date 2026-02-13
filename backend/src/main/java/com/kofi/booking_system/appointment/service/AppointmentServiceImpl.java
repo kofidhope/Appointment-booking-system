@@ -21,6 +21,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
+    private final NotificationService notificationService;
 
     @Override
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request, String authenticatedEmail) {
@@ -44,8 +45,12 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .timeSlot(request.getTimeSlot())
                 .status(AppointmentStatus.PENDING)
                 .build();
-
         appointmentRepository.save(appointment);
+        notificationService.sendEmail(
+                provider.getEmail(),
+                "New booking Request",
+                "You have a new appointment request"
+        );
 
         return mapToResponse(appointment);
     }
