@@ -5,7 +5,6 @@ import com.kofi.booking_system.appointment.dto.CreateAppointmentRequest;
 import com.kofi.booking_system.appointment.service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,6 +1,6 @@
 package com.kofi.booking_system.auth.service;
 
-import com.kofi.booking_system.auth.exception.InvalidCredentialsException;
+import com.kofi.booking_system.common.exception.InvalidCredentialsException;
 import com.kofi.booking_system.user.model.RefreshToken;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.RefreshTokenRepository;

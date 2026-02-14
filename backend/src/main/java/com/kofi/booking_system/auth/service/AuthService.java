@@ -1,8 +1,7 @@
 package com.kofi.booking_system.auth.service;
 
 import com.kofi.booking_system.auth.dto.*;
-import com.kofi.booking_system.auth.exception.InvalidCredentialsException;
-import com.kofi.booking_system.auth.exception.ResourceAlreadyExistsException;
+import com.kofi.booking_system.common.exception.*;
 import com.kofi.booking_system.user.model.RefreshToken;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.Token;
@@ -50,21 +49,21 @@ public class AuthService {
     public void verifyOtp(VerifyOtpRequest request){
         //1. fetch user
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
         //2. fetch otp
         Token otp = tokenRepository.findByToken(request.getOtp())
-                .orElseThrow(()-> new InvalidCredentialsException("Otp not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Otp not found"));
         //3. ensure the otp belongs to this user
         if (!otp.getUser().getId().equals(user.getId())) {
             throw new InvalidCredentialsException("Invalid OTP");
         }
         //4. check for expiry
         if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidCredentialsException("Otp is expired");
+            throw new BadRequestException("Otp is expired");
         }
         //5. prevent re-verification
         if(otp.getValidatedAt()!=null) {
-            throw new InvalidCredentialsException("OTP already used");
+            throw new ForbiddenActionException("OTP already used");
         }
         //6. enable and save user
         user.setEnabled(true);
@@ -77,10 +76,10 @@ public class AuthService {
     public void resendOtp(ResendOtpRequest request) throws MessagingException {
         //1. fetch user
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
         //2. check if the user is already enables
         if (user.isEnabled()){
-            throw new InvalidCredentialsException("Account Already verified.");
+            throw new BadRequestException("Account Already verified.");
         }
         //3. Invalidate old OTP if exist
         tokenRepository.findByUserAndValidatedAtIsNull(user)
@@ -95,7 +94,7 @@ public class AuthService {
     public void forgotPassword(ForgotPasswordRequest request) throws MessagingException {
         //1. fetch the user if exist
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
         //2.send OTP to the email
         otpService.sendValidationEmail(user);
     }
@@ -103,21 +102,21 @@ public class AuthService {
     public void resetPassword(ResetPasswordRequest request) throws MessagingException {
         //1.fetch the user
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new InvalidCredentialsException("User not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
         //2. fetch the token
         Token otp = tokenRepository.findByToken(request.getOtp())
-                .orElseThrow(()-> new InvalidCredentialsException("Otp not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Otp not found"));
         //3. check if hte email belongs to the user
         if (!otp.getUser().getId().equals(user.getId())) {
             throw new InvalidCredentialsException("Invalid OTP");
         }
         //4. check the expiry of the token
         if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidCredentialsException("Otp is expired");
+            throw new BadRequestException("Otp is expired");
         }
         //.5 check if otp is not validated
         if (otp.getValidatedAt()!=null) {
-            throw new InvalidCredentialsException("OTP already used");
+            throw new BadRequestException("OTP already used");
         }
         //6. update password
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -135,12 +134,12 @@ public class AuthService {
                 .orElseThrow(()-> new InvalidCredentialsException("Invalid email or password"));
         //2. check if the account is verified
         if (!user.isEnabled()) {
-            throw new InvalidCredentialsException("Account not verified. Please verify your email.");
+            throw new BadRequestException("Account not verified. Please verify your email.");
         }
 
         //3. check if account is locked
         if(user.getLockUntil()!=null && user.getLockUntil().isAfter(LocalDateTime.now())){
-            throw new InvalidCredentialsException("Account locked. Try again after " + user.getLockUntil());
+            throw new ForbiddenActionException("Account locked. Try again after " + user.getLockUntil());
         }
         //4. auto-unlock if lock expired
         if (user.getLockUntil() != null &&

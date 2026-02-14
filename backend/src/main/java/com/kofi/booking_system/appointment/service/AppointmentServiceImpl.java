@@ -6,6 +6,10 @@ import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
+import com.kofi.booking_system.common.exception.BadRequestException;
+import com.kofi.booking_system.common.exception.BookingConflictException;
+import com.kofi.booking_system.common.exception.ForbiddenActionException;
+import com.kofi.booking_system.common.exception.ResourceNotFoundException;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +31,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request, String authenticatedEmail) {
         //1. fetch the user(customer)
         User customer = userRepository.findByEmail(authenticatedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         //get the provider
         User provider = userRepository.findById(request.getProviderId())
-                .orElseThrow(()-> new RuntimeException("Provider not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Provider not found"));
         //conflict check
-        appointmentRepository.findByAppointmentDateAndTimeSlot(
+        appointmentRepository.findByProviderAndAppointmentDateAndTimeSlot(
                 provider,request.getAppointmentDate(),request.getTimeSlot()
         ).ifPresent(a->{
-            throw new RuntimeException("Slot already booked");
+            throw new BookingConflictException("Slot already booked");
         });
         //create the appointment
         Appointment appointment = Appointment.builder()
@@ -59,14 +63,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse confirmAppointment(Long appointmentId, String providerEmail) {
         //1. fetch the appointment
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         //2.ensure the logged-in provider owns the appointment
         if (appointment.getProvider().getEmail().equals(providerEmail)) {
-            throw new RuntimeException("Not authorized to confirm this appointment");
+            throw new ForbiddenActionException("Not authorized to confirm this appointment");
         }
         //3.only pending appoint can be confirmed
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
-            throw new RuntimeException("Only pending appointments can be confirmed");
+            throw new BadRequestException("Only pending appointments can be confirmed");
         }
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         appointmentRepository.save(appointment);
@@ -77,14 +81,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse rejectAppointment(Long appointmentId, String providerEmail) {
         //1. fetch the appointment
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         //2.ensure the logged-in provider owns the appointment
         if (appointment.getProvider().getEmail().equals(providerEmail)) {
-            throw new RuntimeException("Not authorized to reject this appointment");
+            throw new ForbiddenActionException("Not authorized to reject this appointment");
         }
         //3.only pending appoint can be confirmed
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
-            throw new RuntimeException("Only pending appointments can be rejected");
+            throw new BadRequestException("Only pending appointments can be rejected");
         }
         appointment.setStatus(AppointmentStatus.REJECTED);
         appointmentRepository.save(appointment);
@@ -94,24 +98,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponse cancelAppointment(Long appointmentId, String email,String role) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         //prevent cancelling already finished states
         if (appointment.getStatus()==AppointmentStatus.CANCELLED || appointment.getStatus()==AppointmentStatus.REJECTED){
-            throw new RuntimeException("Appointment already closed");
+            throw new BadRequestException("Appointment already closed");
         }
         //customer rule
         if (role.equals("CUSTOMER")) {
             if (!appointment.getCustomer().getEmail().equals(email)) {
-                throw new RuntimeException("Not your appointment");
+                throw new ForbiddenActionException("Not your appointment");
             }
             if (appointment.getAppointmentDate().isBefore(LocalDate.now())){
-                throw new RuntimeException("Cannot cancel past appointment");
+                throw new BadRequestException("Cannot cancel past appointment");
             }
         }
         //provider rule
         if (role.equals("SERVICE_PROVIDER")){
             if (!appointment.getProvider().getEmail().equals(email)) {
-                throw new RuntimeException("Not your appointment");
+                throw new ForbiddenActionException("Not your appointment");
             }
         }
         appointment.setStatus(AppointmentStatus.CANCELLED);
@@ -124,7 +128,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<TimeSlot> getAvailableSlots(Long providerId, LocalDate date) {
         // fetch the provider
         User provider = userRepository.findById(providerId)
-                .orElseThrow(()-> new RuntimeException("provider not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("provider not found"));
 
         //get all booking for the day
         List<Appointment> appointments = appointmentRepository.findByProviderAndAppointmentDate(provider, date);

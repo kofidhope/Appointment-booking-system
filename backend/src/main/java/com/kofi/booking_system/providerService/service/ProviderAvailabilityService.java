@@ -1,5 +1,9 @@
 package com.kofi.booking_system.providerService.service;
 
+import com.kofi.booking_system.common.exception.BadRequestException;
+import com.kofi.booking_system.common.exception.BookingConflictException;
+import com.kofi.booking_system.common.exception.ForbiddenActionException;
+import com.kofi.booking_system.common.exception.ResourceNotFoundException;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
@@ -18,18 +22,18 @@ public class ProviderAvailabilityService {
 
     public ProviderAvailability createAvailability(CreateAvailabilityRequest request, String providerEmail){
         User provider = userRepository.findByEmail(providerEmail)
-                .orElseThrow(()-> new RuntimeException("user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found with email: " + providerEmail));
         if (provider.getRole() != Role.SERVICE_PROVIDER){
-            throw new RuntimeException("Only Service Provider can set availability");
+            throw new ForbiddenActionException("Only Service Provider can set availability");
         }
         // prevent duplicate day availability
         if (availabilityRepository.existsByProviderAndDayOfWeek(provider, request.getDayOfWeek())){
-            throw new RuntimeException("Availability already exists for this day");
+            throw new BookingConflictException("Availability already exists for this day");
         }
 
         //validate time range
         if (request.getStartTime().isAfter(request.getEndTime())){
-            throw new RuntimeException("Invalid time range");
+            throw new BadRequestException("Invalid time range");
         }
 
         ProviderAvailability availability = ProviderAvailability.builder()

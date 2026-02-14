@@ -1,5 +1,7 @@
 package com.kofi.booking_system.providerService.service;
 
+import com.kofi.booking_system.common.exception.ForbiddenActionException;
+import com.kofi.booking_system.common.exception.ResourceNotFoundException;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
@@ -24,10 +26,10 @@ public class ProviderServiceService {
     public ProviderService createService(CreateServiceRequest request, String providerEmail){
         //1. fetch the user
         User provider = userRepository.findByEmail(providerEmail)
-                .orElseThrow(()-> new RuntimeException("User not found with email: " + providerEmail));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found with email: " + providerEmail));
         // check if user has a provider as role
         if(provider.getRole() != Role.SERVICE_PROVIDER){
-            throw new RuntimeException("User is not a service provider");
+            throw new ForbiddenActionException("User is not a service provider");
         }
         ProviderService serviceProvider = ProviderService.builder()
                 .provider(provider)
@@ -42,7 +44,7 @@ public class ProviderServiceService {
 
     public Page<ProviderServiceResponse> getServicesByProvider(Long providerId,int page,int size){
         User provider = userRepository.findById(providerId)
-                .orElseThrow(()-> new RuntimeException("User not found with id: " + providerId));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found with id: " + providerId));
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
 

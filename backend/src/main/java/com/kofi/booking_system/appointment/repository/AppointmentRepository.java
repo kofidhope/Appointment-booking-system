@@ -15,7 +15,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
      * Checks if a provider already has a booking
      * for a given date and slot.
      */
-    Optional<Appointment> findByAppointmentDateAndTimeSlot(User provider, LocalDate date, TimeSlot time);
+    Optional<Appointment> findByProviderAndAppointmentDateAndTimeSlot(User provider, LocalDate date, TimeSlot time);
 
     List<Appointment> findByProviderAndAppointmentDate(User provider, LocalDate date);
 }
