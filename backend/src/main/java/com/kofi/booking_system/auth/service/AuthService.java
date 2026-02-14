@@ -134,7 +134,7 @@ public class AuthService {
                 .orElseThrow(()-> new InvalidCredentialsException("Invalid email or password"));
         //2. check if the account is verified
         if (!user.isEnabled()) {
-            throw new BadRequestException("Account not verified. Please verify your email.");
+            throw new ForbiddenActionException("Account not verified. Please verify your email.");
         }
 
         //3. check if account is locked
