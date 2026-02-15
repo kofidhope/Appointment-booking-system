@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif; background:#f0fdf4; padding:20px;">
+<div style="max-width:600px; margin:auto; background:#ffffff; padding:20px; border-radius:8px;">
+    <h2>✅ Appointment Confirmed</h2>
+
+    <p>Hello <strong th:text="${customerFirstName}"></strong>,</p>
+
+    <p>Your appointment has been confirmed 🎉</p>
+
+    <ul>
+        <li><strong>Date:</strong> <span th:text="${date}"></span></li>
+        <li><strong>Time:</strong> <span th:text="${timeSlot}"></span></li>
+        <li><strong>Provider:</strong> <span th:text="${providerName}"></span></li>
+    </ul>
+
+    <hr/>
+    <small>Booking System</small>
+</div>
+</body>
+</html>

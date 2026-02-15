@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body style="font-family: Arial, sans-serif; background:#f4f6f8; padding:20px;">
+<div style="max-width:600px; margin:auto; background:#ffffff; padding:20px; border-radius:8px;">
+    <h2>📥 New Appointment Request</h2>
+
+    <p>Hello <strong th:text="${providerFirstName}"></strong>,</p>
+
+    <p>You have received a new booking request.</p>
+
+    <ul>
+        <li><strong>Date:</strong> <span th:text="${date}"></span></li>
+        <li><strong>Time:</strong> <span th:text="${timeSlot}"></span></li>
+        <li><strong>Customer:</strong>
+            <span th:text="${customerName}"></span>
+        </li>
+    </ul>
+
+    <p>Please log in to confirm or reject this appointment.</p>
+
+    <hr/>
+    <small>Booking System</small>
+</div>
+</body>
+</html>

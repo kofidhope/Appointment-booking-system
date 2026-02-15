@@ -26,6 +26,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
     private final NotificationService notificationService;
+    private final EmailTemplateService emailTemplateService;
 
     @Override
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request, String authenticatedEmail) {
@@ -51,10 +52,12 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .status(AppointmentStatus.PENDING)
                 .build();
         appointmentRepository.save(appointment);
+
+        String html = emailTemplateService.renderNewBooking(appointment);
         notificationService.sendEmail(
-                provider.getEmail(),
-                "New booking Request",
-                "You have a new appointment request"
+                appointment.getProvider().getEmail(),
+                "📥 New Appointment Request",
+                html
         );
 
         return mapToResponse(appointment);
@@ -75,6 +78,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         appointmentRepository.save(appointment);
+
+        String html = emailTemplateService.renderBookingConfirmed(appointment);
+
+        notificationService.sendEmail(
+                appointment.getCustomer().getEmail(),
+                "✅ Appointment Confirmed",
+                html
+        );
+
          return mapToResponse(appointment);
     }
 
@@ -121,6 +133,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
+
+        String html = emailTemplateService.renderBookingCancelled(appointment);
+
+        notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Cancelled", html);
+        notificationService.sendEmail(appointment.getProvider().getEmail(), "❌ Appointment Cancelled", html);
+
+
         return mapToResponse(appointment);
 
     }
