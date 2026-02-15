@@ -32,10 +32,7 @@ public class AppointmentController {
 
     @PutMapping("/{id}/confirm")
     @PreAuthorize("hasRole('SERVICE_PROVIDER')")
-    public ResponseEntity<AppointmentResponse> confirmAppointment(
-            @PathVariable Long id,
-            Authentication authentication
-    ){
+    public ResponseEntity<AppointmentResponse> confirmAppointment(@PathVariable Long id,Authentication authentication){
         AppointmentResponse response = appointmentService.confirmAppointment(id,authentication.getName());
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -44,21 +41,32 @@ public class AppointmentController {
 
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('SERVICE_PROVIDER')")
-    public ResponseEntity<AppointmentResponse> rejectAppointment(
-            @PathVariable Long id,
-            Authentication authentication
-    ){
+    public ResponseEntity<AppointmentResponse> rejectAppointment(@PathVariable Long id,Authentication authentication){
         AppointmentResponse response = appointmentService.rejectAppointment(id,authentication.getName());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
 
+    @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('CUSTOMER','SERVICE_PROVIDER')")
+    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable Long id,Authentication authentication) {
+
+        String email = authentication.getName();
+        String role = authentication.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow()
+                .getAuthority()
+                .replace("ROLE_", "");
+
+        AppointmentResponse response = appointmentService.cancelAppointment(id, email, role);
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/availability/{providerId}")
-    public ResponseEntity<?> getAvailability(
-            @PathVariable Long providerId,
-            @RequestParam LocalDate date
-    ) {
+    public ResponseEntity<?> getAvailability(@PathVariable Long providerId,@RequestParam LocalDate date) {
         return ResponseEntity.ok(appointmentService.getAvailableSlots(providerId, date));
     }
 

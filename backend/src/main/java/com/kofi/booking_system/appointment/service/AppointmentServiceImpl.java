@@ -36,11 +36,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         User provider = userRepository.findById(request.getProviderId())
                 .orElseThrow(()-> new ResourceNotFoundException("Provider not found"));
         //conflict check
-        appointmentRepository.findByProviderAndAppointmentDateAndTimeSlot(
-                provider,request.getAppointmentDate(),request.getTimeSlot()
-        ).ifPresent(a->{
+        boolean exists = appointmentRepository.existsByProviderAndAppointmentDateAndTimeSlotAndStatusIn(
+                provider,request.getAppointmentDate(),request.getTimeSlot(),
+                List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED));
+        if (exists){
             throw new BookingConflictException("Slot already booked");
-        });
+        }
         //create the appointment
         Appointment appointment = Appointment.builder()
                 .customer(customer)

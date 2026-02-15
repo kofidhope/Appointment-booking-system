@@ -1,5 +1,6 @@
 package com.kofi.booking_system.appointment.repository;
 
+import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.user.model.User;
@@ -15,7 +16,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
      * Checks if a provider already has a booking
      * for a given date and slot.
      */
-    Optional<Appointment> findByProviderAndAppointmentDateAndTimeSlot(User provider, LocalDate date, TimeSlot time);
+    boolean existsByProviderAndAppointmentDateAndTimeSlotAndStatusIn(
+            User provider,
+            LocalDate date,
+            TimeSlot time,
+            List<AppointmentStatus> status);
 
     List<Appointment> findByProviderAndAppointmentDate(User provider, LocalDate date);
 }
