@@ -6,6 +6,7 @@ import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
+import com.kofi.booking_system.common.audit.service.AuditLogService;
 import com.kofi.booking_system.common.exception.BadRequestException;
 import com.kofi.booking_system.common.exception.BookingConflictException;
 import com.kofi.booking_system.common.exception.ForbiddenActionException;
@@ -27,6 +28,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final NotificationService notificationService;
     private final EmailTemplateService emailTemplateService;
+    private final AuditLogService auditLogService;
 
     @Override
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request, String authenticatedEmail) {
@@ -60,6 +62,17 @@ public class AppointmentServiceImpl implements AppointmentService {
                 html
         );
 
+        // Log the action
+        auditLogService.log(
+                appointment.getCustomer().getEmail(),          // actor
+                "CREATE_BOOKING",                         // action
+                "Appointment",                                 // entity type
+                appointment.getId(),                           // entity ID
+                "Provider confirmed booking for "
+                        + appointment.getAppointmentDate()
+                        + " at " + appointment.getTimeSlot()  // details
+        );
+
         return mapToResponse(appointment);
     }
 
@@ -87,6 +100,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                 html
         );
 
+
+        auditLogService.log(
+                appointment.getProvider().getEmail(),     // actor
+                "CONFIRM_APPOINTMENT",                    // action
+                "Appointment",                            // entity type
+                appointment.getId(),                      // entity ID
+                "Provider confirmed booking for " + appointment.getAppointmentDate() +
+                        " at " + appointment.getTimeSlot()
+        );
+
          return mapToResponse(appointment);
     }
 
@@ -105,6 +128,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointment.setStatus(AppointmentStatus.REJECTED);
         appointmentRepository.save(appointment);
+
+        String html = emailTemplateService.renderBookingCancelled(appointment);
+        notificationService.sendEmail(
+                appointment.getCustomer().getEmail(),
+                "❌ Appointment Rejected",
+                html
+        );
+
+        auditLogService.log(
+                appointment.getProvider().getEmail(),
+                "REJECT_APPOINTMENT",
+                "Appointment",
+                appointment.getId(),
+                "Provider rejected booking for " + appointment.getAppointmentDate() +
+                        " at " + appointment.getTimeSlot()
+        );
+
+
         return mapToResponse(appointment);
     }
 
@@ -139,6 +180,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Cancelled", html);
         notificationService.sendEmail(appointment.getProvider().getEmail(), "❌ Appointment Cancelled", html);
 
+        auditLogService.log(
+                email,
+                "CANCEL_APPOINTMENT",
+                "Appointment",
+                appointment.getId(),
+                role + " cancelled appointment scheduled on " + appointment.getAppointmentDate()
+        );
 
         return mapToResponse(appointment);
 
