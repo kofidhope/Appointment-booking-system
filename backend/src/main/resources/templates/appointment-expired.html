@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Appointment Expired</title>
+</head>
+<body>
+<p>Hi <span th:text="${customerName}">Customer</span>,</p>
+<p>Your appointment with <span th:text="${providerName}">Provider</span> scheduled on
+    <strong th:text="${date}">Date</strong> at <strong th:text="${timeSlot}">Time</strong> has expired.</p>
+<p>Thank you,<br/>Booking System</p>
+</body>
+</html>

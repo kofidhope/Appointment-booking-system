@@ -48,4 +48,20 @@ public class EmailTemplateService {
 
         return templateEngine.process("email/booking-cancelled", context);
     }
+
+    public String renderAppointmentExpired(Appointment appointment) {
+        Context context = new Context();
+        context.setVariable("customerName",
+                appointment.getCustomer().getFirstName() + " " +
+                        appointment.getCustomer().getLastName()
+        );
+        context.setVariable("providerName",
+                appointment.getProvider().getFirstName() + " " +
+                        appointment.getProvider().getLastName()
+        );
+        context.setVariable("date", appointment.getAppointmentDate());
+        context.setVariable("timeSlot", appointment.getTimeSlot());
+
+        return templateEngine.process("email/appointment-expired", context);
+    }
 }

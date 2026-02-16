@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 public class AppointmentCleanupServiceImpl implements AppointmentCleanupService {
 
     private final AppointmentRepository appointmentRepository;
+    private final EmailTemplateService emailTemplateService;
+    private final NotificationService notificationService;
 
     @Override
     public void expireOldPendingBookings() {
@@ -35,13 +37,20 @@ public class AppointmentCleanupServiceImpl implements AppointmentCleanupService 
             );
 
             for (Appointment appointment : slice.getContent()) {
-                expire(appointment);
+                expireAndNotify(appointment);
             }
             page++;
         } while (slice.hasNext());
     }
 
-    private void expire(Appointment appointment) {
+    private void expireAndNotify(Appointment appointment) {
         appointment.setStatus(AppointmentStatus.EXPIRED);
+        String html = emailTemplateService.renderAppointmentExpired(appointment);
+        notificationService.sendEmail(
+                appointment.getCustomer().getEmail(),
+                "⏰ Your Appointment Has Expired",
+                html
+        );
+
     }
 }
