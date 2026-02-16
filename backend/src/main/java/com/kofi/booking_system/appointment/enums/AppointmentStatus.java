@@ -4,5 +4,6 @@ public enum AppointmentStatus {
     PENDING,     // Customer requested, provider hasn’t confirmed
     CONFIRMED,   // Provider accepted
     REJECTED,
-    CANCELLED    // Cancelled by customer or provider
+    CANCELLED,    // Cancelled by customer or provider
+    EXPIRED
 }

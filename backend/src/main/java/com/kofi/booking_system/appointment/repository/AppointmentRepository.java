@@ -4,11 +4,13 @@ import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.user.model.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
@@ -20,7 +22,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
             User provider,
             LocalDate date,
             TimeSlot time,
-            List<AppointmentStatus> status);
+            List<AppointmentStatus> status
+    );
 
     List<Appointment> findByProviderAndAppointmentDate(User provider, LocalDate date);
+
+    Slice<Appointment> findByStatusAndCreatedAtBefore(AppointmentStatus status, LocalDateTime time, Pageable pageable);
 }

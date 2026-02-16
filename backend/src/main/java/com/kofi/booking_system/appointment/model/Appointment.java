@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -47,5 +48,13 @@ public class Appointment{
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime expiredAt;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
