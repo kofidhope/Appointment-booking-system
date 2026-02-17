@@ -99,6 +99,12 @@ public class AppointmentServiceImpl implements AppointmentService {
                 "✅ Appointment Confirmed",
                 html
         );
+        // SMS to customer
+        notificationService.sendSms(
+                appointment.getCustomer().getPhoneNumber(),
+                "Your appointment on " + appointment.getAppointmentDate() +
+                        " at " + appointment.getTimeSlot() + " has been CONFIRMED."
+        );
 
 
         auditLogService.log(
@@ -179,6 +185,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Cancelled", html);
         notificationService.sendEmail(appointment.getProvider().getEmail(), "❌ Appointment Cancelled", html);
+
+        notificationService.sendSms(
+                appointment.getCustomer().getPhoneNumber(),
+                "Your appointment on " + appointment.getAppointmentDate() +
+                        " at " + appointment.getTimeSlot() + " has been CANCELLED."
+        );
 
         auditLogService.log(
                 email,

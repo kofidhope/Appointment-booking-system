@@ -1,9 +1,10 @@
 package com.kofi.booking_system.appointment.service;
-
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 public class NotificationServiceImpl implements NotificationService {
 
     private final JavaMailSender mailSender;
+
+    @Value("${TWILIO_PHONE_NUMBER}")
+    private String fromNumber;
 
     @Override
     public void sendEmail(String to, String subject, String htmlBody) {
@@ -32,7 +36,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendSms(String phone, String message) {
-        // TODO SEND SMS NOTIFICATION
+    public void sendSms(String to, String message) {
+
+            Message.creator(
+                    new PhoneNumber(to),     // recipient number
+                    new PhoneNumber(fromNumber), // Twilio number
+                    message                  // SMS body
+            ).create();
     }
 }

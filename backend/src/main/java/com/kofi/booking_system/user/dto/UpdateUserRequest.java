@@ -13,5 +13,6 @@ public class UpdateUserRequest {
     @NotBlank
     private String lastName;
 
-    //private String phoneNumber;
+    @NotBlank
+    private String phoneNumber;
 }

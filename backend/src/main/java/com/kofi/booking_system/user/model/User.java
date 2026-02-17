@@ -39,7 +39,8 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    //private String phoneNumber;
+    @Column(unique = true, nullable = false)
+    private String phoneNumber;
 
     @Column(nullable = false)
     private boolean enabled;
