@@ -28,4 +28,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
     List<Appointment> findByProviderAndAppointmentDate(User provider, LocalDate date);
 
     Slice<Appointment> findByStatusAndCreatedAtBefore(AppointmentStatus status, LocalDateTime time, Pageable pageable);
+
+    long countByAppointmentDate(LocalDate date);
+
+    long countByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
+
 }
