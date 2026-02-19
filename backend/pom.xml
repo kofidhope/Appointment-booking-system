@@ -102,6 +102,12 @@
 			<version>4.0.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>26.4.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.twilio.sdk</groupId>
 			<artifactId>twilio</artifactId>
 			<version>9.15.0</version>
