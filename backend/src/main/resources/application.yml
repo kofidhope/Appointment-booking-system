@@ -40,3 +40,6 @@ twilio:
   auth-token: ${TWILIO_AUTH_TOKEN}
   phone-number: ${TWILIO_PHONE_NUMBER}
 
+stripe:
+  secret_key: ${STRIPE_SECRET_KEY}
+
