@@ -9,4 +9,6 @@ public interface PaymentService {
     PaymentInitResponse createPayment(CreatePaymentRequest request, String customerEmail);
 
     PaymentResponse confirmPayment(Long paymentId, String providerReference);
+
+    void handlePaystackWebhook(String signature, String payload);
 }

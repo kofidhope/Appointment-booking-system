@@ -43,3 +43,7 @@ twilio:
 stripe:
   secret_key: ${STRIPE_SECRET_KEY}
 
+paystack:
+  secret-key: ${PAYSTACK_SECRET_KEY}
+  public-key: ${PAYSTACK_PUBLIC_KEY}
+
