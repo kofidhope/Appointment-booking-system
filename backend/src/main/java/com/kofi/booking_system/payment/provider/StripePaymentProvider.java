@@ -4,7 +4,9 @@ import com.kofi.booking_system.payment.entity.Payment;
 import com.kofi.booking_system.payment.enums.PaymentStatus;
 import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.RefundCreateParams;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -63,6 +65,21 @@ public class StripePaymentProvider implements PaymentProvider {
             }
         } catch (Exception e) {
             throw new RuntimeException("Stripe confirmation failed: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void refund(Payment payment) {
+        try {
+            RefundCreateParams params = RefundCreateParams.builder()
+                    .setPaymentIntent(payment.getProviderReference())
+                    .build();
+
+            Refund.create(params);
+            payment.setStatus(PaymentStatus.REFUNDED);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Stripe refund failed: " + e.getMessage());
         }
     }
 }

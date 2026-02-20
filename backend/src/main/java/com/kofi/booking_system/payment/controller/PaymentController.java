@@ -31,4 +31,10 @@ public class PaymentController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{paymentId}/refund")
+    public ResponseEntity<PaymentResponse> refundPayment(
+            @PathVariable Long paymentId,Authentication authentication) {
+        return ResponseEntity.ok(paymentService.refundPayment(paymentId,authentication.getName()));
+    }
+
 }

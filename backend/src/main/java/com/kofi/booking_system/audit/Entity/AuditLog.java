@@ -1,4 +1,4 @@
-package com.kofi.booking_system.common.audit.Entity;
+package com.kofi.booking_system.audit.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;

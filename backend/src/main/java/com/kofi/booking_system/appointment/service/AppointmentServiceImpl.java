@@ -6,7 +6,7 @@ import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
-import com.kofi.booking_system.common.audit.service.AuditLogService;
+import com.kofi.booking_system.audit.service.AuditLogService;
 import com.kofi.booking_system.common.exception.BadRequestException;
 import com.kofi.booking_system.common.exception.BookingConflictException;
 import com.kofi.booking_system.common.exception.ForbiddenActionException;
@@ -41,7 +41,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         //conflict check
         boolean exists = appointmentRepository.existsByProviderAndAppointmentDateAndTimeSlotAndStatusIn(
                 provider,request.getAppointmentDate(),request.getTimeSlot(),
-                List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED));
+                List.of(AppointmentStatus.CONFIRMED));
         if (exists){
             throw new BookingConflictException("Slot already booked");
         }

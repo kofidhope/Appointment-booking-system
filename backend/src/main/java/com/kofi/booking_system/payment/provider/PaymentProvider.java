@@ -12,4 +12,7 @@ public interface PaymentProvider {
     //verify payment Result(webhook)
     void confirm(Payment payment, String providerReference);
 
+    // refund payment
+    void refund(Payment payment);
+
 }

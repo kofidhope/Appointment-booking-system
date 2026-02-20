@@ -11,4 +11,6 @@ public interface PaymentService {
     PaymentResponse confirmPayment(Long paymentId, String providerReference);
 
     void handlePaystackWebhook(String signature, String payload);
+
+    PaymentResponse refundPayment(Long paymentId, String email);
 }

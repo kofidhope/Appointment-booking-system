@@ -49,11 +49,13 @@ public class PaymentServiceImpl implements  PaymentService {
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             throw new BadRequestException("Appointment must be confirmed before payment");
         }
-        // check if payment already exist
-        paymentRepository.findByAppointmentId(appointment.getId())
-                .ifPresent(p -> {
-                    throw new BadRequestException("Payment already exists for this appointment");
-                });
+        // Idempotent: return existing pending payment instead of throwing error
+        Payment existing = paymentRepository.findByAppointmentId(appointment.getId())
+                .orElse(null);
+
+        if (existing != null && existing.getStatus() == PaymentStatus.PENDING) {
+            return new PaymentInitResponse(existing.getId(), existing.getProviderReference());
+        }
         //proceed with the payment
         Payment payment = Payment.builder()
                 .appointment(appointment)
@@ -93,6 +95,39 @@ public class PaymentServiceImpl implements  PaymentService {
         processPaystackEvent(payload);
     }
 
+    @Override
+    public PaymentResponse refundPayment(Long paymentId, String email) {
+
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+
+        // only successful payments can be refunded
+        if (payment.getStatus() != PaymentStatus.SUCCESS) {
+            throw new BadRequestException("Only successful payments can be refunded");
+        }
+
+        // security: only the owner can refund
+        if (!payment.getAppointment().getCustomer().getEmail().equals(email)) {
+            throw new BadRequestException("You can only refund your own payment");
+        }
+
+        PaymentProvider provider =
+                providerFactory.getProvider(payment.getMethod().name());
+
+        // refund via provider (Paystack / Stripe)
+        provider.refund(payment);
+
+        //update appointment after successful refund
+        Appointment appointment = payment.getAppointment();
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+
+        //persist both
+        paymentRepository.save(payment);
+        appointmentRepository.save(appointment);
+
+        return mapToResponse(payment);
+    }
+
     private void processPaystackEvent(String payload) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -108,6 +143,12 @@ public class PaymentServiceImpl implements  PaymentService {
 
             payment.setStatus(PaymentStatus.SUCCESS);
             paymentRepository.save(payment);
+            // Auto-confirm appointment
+            Appointment appointment = payment.getAppointment();
+            appointment.setStatus(AppointmentStatus.CONFIRMED);
+
+            paymentRepository.save(payment);
+            appointmentRepository.save(appointment);
 
         } catch (Exception e) {
             throw new RuntimeException("Webhook processing failed");

@@ -1,4 +1,4 @@
-package com.kofi.booking_system.common.audit.service;
+package com.kofi.booking_system.audit.service;
 
 public interface AuditLogService {
 

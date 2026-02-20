@@ -1,4 +1,4 @@
-package com.kofi.booking_system.payment.config;
+package com.kofi.booking_system.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

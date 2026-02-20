@@ -1,6 +1,6 @@
-package com.kofi.booking_system.common.audit.repo;
+package com.kofi.booking_system.audit.repo;
 
-import com.kofi.booking_system.common.audit.Entity.AuditLog;
+import com.kofi.booking_system.audit.Entity.AuditLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

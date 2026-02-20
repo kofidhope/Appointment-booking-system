@@ -65,4 +65,21 @@ public class PaystackPaymentProvider implements PaymentProvider {
             payment.setStatus(PaymentStatus.FAILED);
         }
     }
+
+    @Override
+    public void refund(Payment payment) {
+
+        Map<String, Object> body = Map.of(
+                "transaction", payment.getProviderReference()
+        );
+
+        paystackClient.post()
+                .uri("/refund")
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        payment.setStatus(PaymentStatus.REFUNDED);
+    }
 }

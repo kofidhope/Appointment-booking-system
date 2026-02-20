@@ -1,4 +1,4 @@
-package com.kofi.booking_system.common.config;
+package com.kofi.booking_system.config;
 
 import com.twilio.Twilio;
 import jakarta.annotation.PostConstruct;

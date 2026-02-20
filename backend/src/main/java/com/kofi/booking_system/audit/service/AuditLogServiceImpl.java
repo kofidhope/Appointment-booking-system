@@ -1,7 +1,7 @@
-package com.kofi.booking_system.common.audit.service;
+package com.kofi.booking_system.audit.service;
 
-import com.kofi.booking_system.common.audit.Entity.AuditLog;
-import com.kofi.booking_system.common.audit.repo.AuditLogRepository;
+import com.kofi.booking_system.audit.Entity.AuditLog;
+import com.kofi.booking_system.audit.repo.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

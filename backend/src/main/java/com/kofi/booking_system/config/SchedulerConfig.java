@@ -1,4 +1,4 @@
-package com.kofi.booking_system.scheduler;
+package com.kofi.booking_system.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
