@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .timeSlot(request.getTimeSlot())
                 .status(AppointmentStatus.PENDING)
                 .build();
+        applyTimeSlot(appointment);
         appointmentRepository.save(appointment);
 
         String html = emailTemplateService.renderNewBooking(appointment);
@@ -74,6 +76,50 @@ public class AppointmentServiceImpl implements AppointmentService {
         );
 
         return mapToResponse(appointment);
+    }
+
+    private void applyTimeSlot(Appointment appt) {
+        switch (appt.getTimeSlot()) {
+            case SLOT_09_00 -> {
+                appt.setStartTime(LocalTime.of(9, 0));
+                appt.setEndTime(LocalTime.of(10, 0));
+            }
+
+            case SLOT_10_00 -> {
+                appt.setStartTime(LocalTime.of(10, 0));
+                appt.setEndTime(LocalTime.of(11, 0));
+            }
+
+            case SLOT_11_00 -> {
+                appt.setStartTime(LocalTime.of(11, 0));
+                appt.setEndTime(LocalTime.of(12, 0));
+            }
+
+            case SLOT_12_00 -> {
+                appt.setStartTime(LocalTime.of(12, 0));
+                appt.setEndTime(LocalTime.of(13, 0));
+            }
+
+            case SLOT_13_00 -> {
+                appt.setStartTime(LocalTime.of(13, 0));
+                appt.setEndTime(LocalTime.of(14, 0));
+            }
+
+            case SLOT_14_00 -> {
+                appt.setStartTime(LocalTime.of(14, 0));
+                appt.setEndTime(LocalTime.of(15, 0));
+            }
+
+            case SLOT_15_00 -> {
+                appt.setStartTime(LocalTime.of(15, 0));
+                appt.setEndTime(LocalTime.of(16, 0));
+            }
+
+            case SLOT_16_00 -> {
+                appt.setStartTime(LocalTime.of(16, 0));
+                appt.setEndTime(LocalTime.of(17, 0));
+            }
+        }
     }
 
     @Override
