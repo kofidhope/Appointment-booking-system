@@ -70,7 +70,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 "CREATE_BOOKING",                         // action
                 "Appointment",                                 // entity type
                 appointment.getId(),                           // entity ID
-                "Provider confirmed booking for "
+                "Customer booked appointment "
                         + appointment.getAppointmentDate()
                         + " at " + appointment.getTimeSlot()  // details
         );
@@ -128,7 +128,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         //2.ensure the logged-in provider owns the appointment
-        if (appointment.getProvider().getEmail().equals(providerEmail)) {
+        if (!appointment.getProvider().getEmail().equals(providerEmail)) {
             throw new ForbiddenActionException("Not authorized to confirm this appointment");
         }
         //3.only pending appoint can be confirmed

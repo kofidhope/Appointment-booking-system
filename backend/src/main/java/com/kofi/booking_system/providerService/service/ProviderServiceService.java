@@ -23,7 +23,7 @@ public class ProviderServiceService {
     private final ProviderServiceRepository repository;
     private final UserRepository userRepository;
 
-    public ProviderService createService(CreateServiceRequest request, String providerEmail){
+    public ProviderServiceResponse createService(CreateServiceRequest request, String providerEmail){
         //1. fetch the user
         User provider = userRepository.findByEmail(providerEmail)
                 .orElseThrow(()-> new ResourceNotFoundException("User not found with email: " + providerEmail));
@@ -38,7 +38,15 @@ public class ProviderServiceService {
                 .durationMinutes(request.getDurationMinutes())
                 .price(request.getPrice())
                 .build();
-        return repository.save(serviceProvider);
+        ProviderService saved = repository.save(serviceProvider);
+
+        return new ProviderServiceResponse(
+                saved.getId(),
+                saved.getName(),
+                saved.getDescription(),
+                saved.getDurationMinutes(),
+                saved.getPrice()
+        );
 
     }
 

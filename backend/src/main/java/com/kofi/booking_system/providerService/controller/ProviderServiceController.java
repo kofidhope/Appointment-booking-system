@@ -29,7 +29,7 @@ public class ProviderServiceController {
 
     @PostMapping("/services")
     @PreAuthorize("hasRole('SERVICE_PROVIDER')")
-    public ResponseEntity<ProviderService> createService(
+    public ResponseEntity<ProviderServiceResponse> createService(
             @RequestBody @Valid CreateServiceRequest request, Authentication authentication){
         String email = authentication.getName();
         return ResponseEntity.ok(

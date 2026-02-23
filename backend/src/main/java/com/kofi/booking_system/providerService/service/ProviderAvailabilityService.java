@@ -4,6 +4,7 @@ import com.kofi.booking_system.common.exception.BadRequestException;
 import com.kofi.booking_system.common.exception.BookingConflictException;
 import com.kofi.booking_system.common.exception.ForbiddenActionException;
 import com.kofi.booking_system.common.exception.ResourceNotFoundException;
+import com.kofi.booking_system.providerService.dto.CreateAvailabilityResponse;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
@@ -20,7 +21,7 @@ public class ProviderAvailabilityService {
     private final ProviderAvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
 
-    public ProviderAvailability createAvailability(CreateAvailabilityRequest request, String providerEmail){
+    public CreateAvailabilityResponse createAvailability(CreateAvailabilityRequest request, String providerEmail){
         User provider = userRepository.findByEmail(providerEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Provider not found with email: " + providerEmail));
         if (provider.getRole() != Role.SERVICE_PROVIDER){
@@ -42,7 +43,12 @@ public class ProviderAvailabilityService {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .build();
-        return availabilityRepository.save(availability);
+        ProviderAvailability saved = availabilityRepository.save(availability);
+        return new  CreateAvailabilityResponse(
+                saved.getDayOfWeek(),
+                saved.getStartTime(),
+                saved.getEndTime()
+        );
     }
 
 }

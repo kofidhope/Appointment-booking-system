@@ -1,6 +1,7 @@
 package com.kofi.booking_system.providerService.controller;
 
 import com.kofi.booking_system.providerService.dto.CreateAvailabilityRequest;
+import com.kofi.booking_system.providerService.dto.CreateAvailabilityResponse;
 import com.kofi.booking_system.providerService.service.ProviderAvailabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class ProviderAvailabilityController {
 
     @PostMapping
     @PreAuthorize("hasRole('SERVICE_PROVIDER')")
-    public ResponseEntity<?> createAvailability(
+    public ResponseEntity<CreateAvailabilityResponse> createAvailability(
             @RequestBody CreateAvailabilityRequest request,
             Authentication authentication
     ){
