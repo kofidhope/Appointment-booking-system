@@ -1,4 +1,4 @@
-package com.kofi.booking_system.admin.dto;
+package com.kofi.booking_system.providerService.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

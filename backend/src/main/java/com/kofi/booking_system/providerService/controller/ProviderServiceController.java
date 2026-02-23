@@ -1,6 +1,6 @@
 package com.kofi.booking_system.providerService.controller;
 
-import com.kofi.booking_system.admin.dto.CreateProviderRequest;
+import com.kofi.booking_system.providerService.dto.CreateProviderRequest;
 import com.kofi.booking_system.providerService.dto.CreateServiceRequest;
 import com.kofi.booking_system.providerService.dto.ProviderServiceResponse;
 import com.kofi.booking_system.providerService.model.ProviderService;

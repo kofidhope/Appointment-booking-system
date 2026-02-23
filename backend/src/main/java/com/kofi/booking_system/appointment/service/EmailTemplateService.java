@@ -22,7 +22,7 @@ public class EmailTemplateService {
                         appointment.getCustomer().getLastName()
         );
 
-        return templateEngine.process("email/new-booking", context);
+        return templateEngine.process("new-booking", context);
     }
 
     public String renderBookingConfirmed(Appointment appointment) {
@@ -36,7 +36,7 @@ public class EmailTemplateService {
                         appointment.getProvider().getLastName()
         );
 
-        return templateEngine.process("email/booking-confirmed", context);
+        return templateEngine.process("booking-confirmed", context);
     }
 
     public String renderBookingCancelled(Appointment appointment) {
@@ -46,7 +46,7 @@ public class EmailTemplateService {
         context.setVariable("timeSlot", appointment.getTimeSlot());
 //        context.setVariable("cancelledBy", cancelledBy);
 
-        return templateEngine.process("email/booking-cancelled", context);
+        return templateEngine.process("booking-cancelled", context);
     }
 
     public String renderAppointmentExpired(Appointment appointment) {
@@ -62,6 +62,6 @@ public class EmailTemplateService {
         context.setVariable("date", appointment.getAppointmentDate());
         context.setVariable("timeSlot", appointment.getTimeSlot());
 
-        return templateEngine.process("email/appointment-expired", context);
+        return templateEngine.process("appointment-expired", context);
     }
 }
