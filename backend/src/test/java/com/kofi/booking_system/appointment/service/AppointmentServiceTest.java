@@ -1,14 +1,10 @@
-package com.kofi.booking_system.appointment;
+package com.kofi.booking_system.appointment.service;
 
 import com.kofi.booking_system.appointment.dto.CreateAppointmentRequest;
 import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
-import com.kofi.booking_system.appointment.service.AppointmentService;
-import com.kofi.booking_system.appointment.service.AppointmentServiceImpl;
-import com.kofi.booking_system.appointment.service.EmailTemplateService;
-import com.kofi.booking_system.appointment.service.NotificationService;
 import com.kofi.booking_system.audit.service.AuditLogService;
 import com.kofi.booking_system.common.exception.BadRequestException;
 import com.kofi.booking_system.common.exception.BookingConflictException;
@@ -24,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
