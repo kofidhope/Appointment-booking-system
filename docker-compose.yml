@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: appointment_booking
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
@@ -13,19 +13,51 @@ services:
     networks:
       - spring
 
-  mail-dev:
-    container_name: mail-dev-abs
-    image: maildev/maildev
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "1080:1080"
-      - "1025:1025"
+      - "8088:8088"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY}
+      PAYSTACK_PUBLIC_KEY: ${PAYSTACK_PUBLIC_KEY}
+
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
     networks:
       - spring
 
 
+#  mail-dev:
+#    container_name: mail-dev-abs
+#    image: maildev/maildev
+#    ports:
+#      - "1080:1080"
+#      - "1025:1025"
+#    networks:
+#      - spring
+
 volumes:
   postgres:
     driver: local
+
 networks:
   spring:
     driver: bridge

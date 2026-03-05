@@ -18,16 +18,21 @@ spring:
     show-sql: true
 
   mail:
-    host: localhost
-    port: 1025
-    username: ""
-    password: ""
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    debug: true
     properties:
       mail:
+        mail.debug: true
         smtp:
-          auth: false
+          auth: true
           starttls:
-            enable: false
+            enable: true
+          ssl:
+            enabled: true
+            trust: "*"
 server:
   port: 8088
 
