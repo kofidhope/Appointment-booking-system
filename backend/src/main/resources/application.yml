@@ -22,17 +22,21 @@ spring:
     port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
-    debug: true
     properties:
       mail:
-        mail.debug: true
         smtp:
           auth: true
           starttls:
             enable: true
-          ssl:
-            enabled: true
-            trust: "*"
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+        debug: true
+
+logging:
+  level:
+    org.springframework.mail: DEBUG
+    jakarta.mail: DEBUG
 server:
   port: 8088
 

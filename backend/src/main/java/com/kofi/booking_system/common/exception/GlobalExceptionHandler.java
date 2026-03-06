@@ -2,6 +2,8 @@ package com.kofi.booking_system.common.exception;
 
 import com.kofi.booking_system.common.dto.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Validation errors (DTO @Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -45,6 +49,8 @@ public class GlobalExceptionHandler {
             ResourceAlreadyExistsException ex,
             HttpServletRequest request) {
 
+        log.warn("Resource conflict at {}: {}", request.getRequestURI(), ex.getMessage());
+
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
@@ -62,6 +68,8 @@ public class GlobalExceptionHandler {
             InvalidCredentialsException ex,
             HttpServletRequest request) {
 
+        log.warn("Invalid credentials at {}: {}", request.getRequestURI(), ex.getMessage());
+
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
@@ -76,26 +84,36 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex,
                                             HttpServletRequest request) {
+        log.warn("Resource not found at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), null, request.getRequestURI());
     }
 
     @ExceptionHandler(BookingConflictException.class)
     public ResponseEntity<?> handleConflict(BookingConflictException ex,
                                             HttpServletRequest request) {
+        log.warn("Booking conflict at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildError(HttpStatus.CONFLICT, ex.getMessage(), null, request.getRequestURI());
     }
 
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<?> handleForbidden(ForbiddenActionException ex,
                                              HttpServletRequest request) {
+        log.warn("Forbidden action at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildError(HttpStatus.FORBIDDEN, ex.getMessage(), null, request.getRequestURI());
     }
 
-    // Fallback (catch-all)
+    // Fallback (catch-all) — logs the REAL error
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(
             Exception ex,
             HttpServletRequest request) {
+
+        // This will now show the real error in docker compose logs
+        log.error("Unhandled exception at {} {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                ex.getMessage(),
+                ex);
 
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

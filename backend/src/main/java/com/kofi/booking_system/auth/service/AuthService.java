@@ -10,6 +10,8 @@ import com.kofi.booking_system.user.repository.TokenRepository;
 import com.kofi.booking_system.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private final OtpService otpService;
     private final RefreshTokenService refreshTokenService;
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     public void register(RegisterRequest request) throws MessagingException {
         //1.check if the email exist
@@ -43,7 +47,13 @@ public class AuthService {
                 .build();
         //3.save the user
         userRepository.save(user);
-       otpService.sendValidationEmail(user);
+
+        try {
+            otpService.sendValidationEmail(user);
+        } catch (MessagingException e) {
+            log.error("Failed to send OTP email to {}: {}", user.getEmail(), e.getMessage(), e); // NOW WE SEE THE REAL ERROR
+            throw new MessagingException("Failed to send verification email: " + e.getMessage(), e);
+        }
     }
 
 
