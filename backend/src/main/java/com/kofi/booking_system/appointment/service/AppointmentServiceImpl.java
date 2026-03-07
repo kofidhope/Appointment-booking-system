@@ -14,6 +14,8 @@ import com.kofi.booking_system.common.exception.ResourceNotFoundException;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,6 +32,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final NotificationService notificationService;
     private final EmailTemplateService emailTemplateService;
     private final AuditLogService auditLogService;
+
+    private static final Logger log = LoggerFactory.getLogger(AppointmentServiceImpl.class);
 
     @Override
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request, String authenticatedEmail) {
@@ -57,12 +61,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         applyTimeSlot(appointment);
         appointmentRepository.save(appointment);
 
-        String html = emailTemplateService.renderNewBooking(appointment);
-        notificationService.sendEmail(
-                appointment.getProvider().getEmail(),
-                "📥 New Appointment Request",
-                html
-        );
+
+        try {
+            String html = emailTemplateService.renderNewBooking(appointment);
+            notificationService.sendEmail(
+                    appointment.getProvider().getEmail(),
+                    "📥 New Appointment Request",
+                    html
+            );
+        } catch (Exception e) {
+            log.warn("Failed to send booking notification to provider {}: {}",
+                    appointment.getProvider().getEmail(), e.getMessage());
+        }
+
 
         // Log the action
         auditLogService.log(
@@ -138,19 +149,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         appointmentRepository.save(appointment);
 
-        String html = emailTemplateService.renderBookingConfirmed(appointment);
-
-        notificationService.sendEmail(
-                appointment.getCustomer().getEmail(),
-                "✅ Appointment Confirmed",
-                html
-        );
-        // SMS to customer
-        notificationService.sendSms(
-                appointment.getCustomer().getPhoneNumber(),
-                "Your appointment on " + appointment.getAppointmentDate() +
-                        " at " + appointment.getTimeSlot() + " has been CONFIRMED."
-        );
+        try {
+            String html = emailTemplateService.renderBookingConfirmed(appointment);
+            notificationService.sendEmail(appointment.getCustomer().getEmail(), "✅ Appointment Confirmed", html);
+            notificationService.sendSms(appointment.getCustomer().getPhoneNumber(), "Your appointment on " + appointment.getAppointmentDate() +
+                    " at " + appointment.getTimeSlot() + " has been CONFIRMED.");
+        } catch (Exception e) {
+            log.warn("Failed to send confirmation notification: {}", e.getMessage());
+        }
 
 
         auditLogService.log(
@@ -171,7 +177,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         //2.ensure the logged-in provider owns the appointment
-        if (appointment.getProvider().getEmail().equals(providerEmail)) {
+        if (!appointment.getProvider().getEmail().equals(providerEmail)) {
             throw new ForbiddenActionException("Not authorized to reject this appointment");
         }
         //3.only pending appoint can be confirmed
@@ -181,12 +187,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.REJECTED);
         appointmentRepository.save(appointment);
 
-        String html = emailTemplateService.renderBookingCancelled(appointment);
-        notificationService.sendEmail(
-                appointment.getCustomer().getEmail(),
-                "❌ Appointment Rejected",
-                html
-        );
+        try {
+            String html = emailTemplateService.renderBookingCancelled(appointment);
+            notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Rejected", html);
+        } catch (Exception e) {
+            log.warn("Failed to send rejection notification: {}", e.getMessage());
+        }
 
         auditLogService.log(
                 appointment.getProvider().getEmail(),
@@ -206,9 +212,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         //prevent cancelling already finished states
-        if (appointment.getStatus()==AppointmentStatus.CANCELLED || appointment.getStatus()==AppointmentStatus.REJECTED){
+        if (appointment.getStatus()==AppointmentStatus.CANCELLED
+                || appointment.getStatus()==AppointmentStatus.REJECTED
+                || appointment.getStatus()==AppointmentStatus.EXPIRED
+        ){
             throw new BadRequestException("Appointment already closed");
         }
+
+        // nobody can cancel a paid appointment — must refund first
+        if (appointment.isPaid()) {
+            throw new ForbiddenActionException("Cannot cancel a paid appointment. Please request a refund first.");
+        }
+
         //customer rule
         if (role.equals("CUSTOMER")) {
             if (!appointment.getCustomer().getEmail().equals(email)) {
@@ -216,6 +231,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
             if (appointment.getAppointmentDate().isBefore(LocalDate.now())){
                 throw new BadRequestException("Cannot cancel past appointment");
+            }
+            if (appointment.getStatus() == AppointmentStatus.CONFIRMED) {
+                throw new ForbiddenActionException("Cannot cancel a confirmed appointment. Please contact the provider.");
             }
         }
         //provider rule
@@ -227,16 +245,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
 
-        String html = emailTemplateService.renderBookingCancelled(appointment);
+        try {
+            String html = emailTemplateService.renderBookingCancelled(appointment);
+            notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Cancelled", html);
+            notificationService.sendEmail(appointment.getProvider().getEmail(), "❌ Appointment Cancelled", html);
+        } catch (Exception e) {
+            log.warn("Failed to send cancellation email: {}", e.getMessage());
+        }
 
-        notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Cancelled", html);
-        notificationService.sendEmail(appointment.getProvider().getEmail(), "❌ Appointment Cancelled", html);
-
-        notificationService.sendSms(
-                appointment.getCustomer().getPhoneNumber(),
-                "Your appointment on " + appointment.getAppointmentDate() +
-                        " at " + appointment.getTimeSlot() + " has been CANCELLED."
-        );
+        try {
+            notificationService.sendSms(
+                    appointment.getCustomer().getPhoneNumber(),
+                    "Your appointment on " + appointment.getAppointmentDate() +
+                            " at " + appointment.getTimeSlot() + " has been CANCELLED."
+            );
+        } catch (Exception e) {
+            log.warn("Failed to send cancellation SMS: {}", e.getMessage());
+        }
 
         auditLogService.log(
                 email,

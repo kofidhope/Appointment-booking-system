@@ -25,11 +25,11 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.createPayment(request,authentication.getName()));
     }
 
-    @PostMapping("/confirm")
-    public ResponseEntity<Void> confirmPayment(@RequestParam Long paymentId, @RequestParam String providerRef) {
-        paymentService.confirmPayment(paymentId, providerRef);
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/confirm")
+//    public ResponseEntity<Void> confirmPayment(@RequestParam Long paymentId, @RequestParam String providerRef) {
+//        paymentService.confirmPayment(paymentId, providerRef);
+//        return ResponseEntity.ok().build();
+//    }
 
     @PostMapping("/{paymentId}/refund")
     public ResponseEntity<PaymentResponse> refundPayment(

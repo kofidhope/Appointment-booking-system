@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/payments/webhook/paystack")
+@RequestMapping("/api/v1/payments/webhook/paystack")
 @RequiredArgsConstructor
 public class PaystackWebhookController {
 

@@ -51,6 +51,7 @@ public class Appointment{
 
     private LocalDateTime createdAt;
     private LocalDateTime expiredAt;
+    private boolean paid = false;
 
     @PrePersist
     public void onCreate() {

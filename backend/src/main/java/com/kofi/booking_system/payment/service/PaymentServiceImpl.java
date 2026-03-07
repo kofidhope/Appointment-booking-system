@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
+import com.kofi.booking_system.appointment.service.NotificationService;
 import com.kofi.booking_system.common.exception.BadRequestException;
 import com.kofi.booking_system.common.exception.ResourceNotFoundException;
 import com.kofi.booking_system.payment.dto.CreatePaymentRequest;
@@ -16,6 +17,8 @@ import com.kofi.booking_system.payment.factory.PaymentProviderFactory;
 import com.kofi.booking_system.payment.provider.PaymentProvider;
 import com.kofi.booking_system.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +35,9 @@ public class PaymentServiceImpl implements  PaymentService {
     private final PaymentRepository paymentRepository;
     private final AppointmentRepository appointmentRepository;
     private final PaymentProviderFactory providerFactory;
+    private final NotificationService notificationService;
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
     @Value("${paystack.secret-key}")
     private String paystackSecretKey;
@@ -124,6 +130,15 @@ public class PaymentServiceImpl implements  PaymentService {
         //persist both
         paymentRepository.save(payment);
         appointmentRepository.save(appointment);
+        try {
+            notificationService.sendEmail(
+                    appointment.getCustomer().getEmail(),
+                    "💰 Refund Processed",
+                    "Your refund has been processed and appointment cancelled."
+            );
+        } catch (Exception e) {
+            log.warn("Failed to send refund notification: {}", e.getMessage());
+        }
 
         return mapToResponse(payment);
     }
@@ -145,7 +160,7 @@ public class PaymentServiceImpl implements  PaymentService {
             paymentRepository.save(payment);
             // Auto-confirm appointment
             Appointment appointment = payment.getAppointment();
-            appointment.setStatus(AppointmentStatus.CONFIRMED);
+            appointment.setPaid(true);
 
             paymentRepository.save(payment);
             appointmentRepository.save(appointment);
