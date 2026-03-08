@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -57,6 +58,7 @@ public class AuthService {
     }
 
 
+    @Transactional
     public void verifyOtp(VerifyOtpRequest request){
         //1. fetch user
         User user = userRepository.findByEmail(request.getEmail())
@@ -106,10 +108,15 @@ public class AuthService {
         //1. fetch the user if exist
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new ResourceNotFoundException("User not found"));
-        //2.send OTP to the email
+        //2.check if account is verified
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Account not verified.");
+        }
+        //3.send OTP to the email
         otpService.sendValidationEmail(user);
     }
 
+    @Transactional
     public void resetPassword(ResetPasswordRequest request) throws MessagingException {
         //1.fetch the user
         User user = userRepository.findByEmail(request.getEmail())
