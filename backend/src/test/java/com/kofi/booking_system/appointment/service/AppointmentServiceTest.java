@@ -195,5 +195,74 @@ public class AppointmentServiceTest {
             appointmentService.cancelAppointment(1L, customer.getEmail(), "CUSTOMER");
         });
     }
+
+    @Test
+    void cancelAppointment_shouldFail_whenAlreadyCancelled() {
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .customer(customer)
+                .appointmentDate(LocalDate.now().plusDays(1))
+                .status(AppointmentStatus.CANCELLED)
+                .build();
+
+        when(appointmentRepository.findById(1L))
+                .thenReturn(Optional.of(appointment));
+
+        assertThrows(BadRequestException.class, () -> {
+            appointmentService.cancelAppointment(1L, customer.getEmail(), "CUSTOMER");
+        });
+    }
+
+    @Test
+    void cancelAppointment_shouldFail_whenAppointmentIsPaid() {
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .customer(customer)
+                .appointmentDate(LocalDate.now().plusDays(1))
+                .status(AppointmentStatus.CONFIRMED)
+                .paid(true)
+                .build();
+
+        when(appointmentRepository.findById(1L))
+                .thenReturn(Optional.of(appointment));
+
+        assertThrows(ForbiddenActionException.class, () -> {
+            appointmentService.cancelAppointment(1L, customer.getEmail(), "CUSTOMER");
+        });
+    }
+
+    @Test
+    void cancelAppointment_shouldFail_whenCustomerCancelsConfirmed() {
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .customer(customer)
+                .appointmentDate(LocalDate.now().plusDays(1))
+                .status(AppointmentStatus.CONFIRMED)
+                .paid(false)
+                .build();
+
+        when(appointmentRepository.findById(1L))
+                .thenReturn(Optional.of(appointment));
+
+        assertThrows(ForbiddenActionException.class, () -> {
+            appointmentService.cancelAppointment(1L, customer.getEmail(), "CUSTOMER");
+        });
+    }
+
+    @Test
+    void confirmAppointment_shouldFail_whenNotPending() {
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .provider(provider)
+                .status(AppointmentStatus.CONFIRMED)
+                .build();
+
+        when(appointmentRepository.findById(1L))
+                .thenReturn(Optional.of(appointment));
+
+        assertThrows(BadRequestException.class, () -> {
+            appointmentService.confirmAppointment(1L, provider.getEmail());
+        });
+    }
 }
 

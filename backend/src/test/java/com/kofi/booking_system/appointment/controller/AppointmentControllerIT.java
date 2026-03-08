@@ -135,7 +135,7 @@ class AppointmentControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())   // ADD THIS
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -150,6 +150,28 @@ class AppointmentControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())   // ADD THIS
-                .andExpect(status().isForbidden()); // Spring Security returns 403 when no token
+                .andExpect(status().isUnauthorized());  // Spring Security returns 403 when no token
+    }
+
+    @Test
+    void bookingDuplicateSlotShouldFail() throws Exception {
+        CreateAppointmentRequest request = new CreateAppointmentRequest();
+        request.setProviderId(provider.getId());
+        request.setAppointmentDate(LocalDate.now().plusDays(1));
+        request.setTimeSlot(TimeSlot.SLOT_09_00);
+
+        // first booking
+        mockMvc.perform(post("/api/v1/appointment")
+                        .header("Authorization", customerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+
+        // second booking same slot should fail
+        mockMvc.perform(post("/api/v1/appointment")
+                        .header("Authorization", customerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
     }
 }
