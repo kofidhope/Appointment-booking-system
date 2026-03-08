@@ -5,6 +5,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,8 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
+
     // generate token
     public String generateToken(String email,String role){
         return Jwts.builder()
@@ -33,7 +37,7 @@ public class JwtService {
                 .claim("role",role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)  // sign with secret key
+                .signWith(getSigningKey())  // sign with secret key
                 .compact();
     }
 
@@ -47,7 +51,8 @@ public class JwtService {
                     .parseClaimsJws(token);          //  parse token and check signature
             return true;
         } catch (Exception e) {
-            return false;  // invalid token
+            log.warn("Invalid JWT token: {}", e.getMessage());
+            return false;
         }
     }
 

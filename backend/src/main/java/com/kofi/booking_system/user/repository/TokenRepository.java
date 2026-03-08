@@ -10,5 +10,4 @@ public interface TokenRepository extends JpaRepository<Token,Long> {
 
     Optional<Token> findByToken(String token);
     Optional<Token> findByUserAndValidatedAtIsNull(User user);
-
 }

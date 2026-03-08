@@ -17,6 +17,9 @@ public class RefreshTokenService {
     private final RefreshTokenRepository repository;
 
     public RefreshToken create(User user){
+        // revoke all existing active tokens for this user
+        repository.findAllByUserAndRevokedAtIsNull(user)
+                .forEach(this::revoke);
 
         RefreshToken token = new RefreshToken();
         token.setToken(UUID.randomUUID().toString());
@@ -27,7 +30,6 @@ public class RefreshTokenService {
 
         return repository.save(token);
     }
-
     // validate refresh token
     public RefreshToken verify(String tokenValue){
         RefreshToken token = repository.findByToken(tokenValue)
