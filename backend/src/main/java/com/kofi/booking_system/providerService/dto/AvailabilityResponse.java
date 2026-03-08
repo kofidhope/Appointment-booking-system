@@ -1,6 +1,5 @@
 package com.kofi.booking_system.providerService.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,7 +8,8 @@ import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
-public class CreateAvailabilityResponse {
+public class AvailabilityResponse {
+    private Long id;
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;

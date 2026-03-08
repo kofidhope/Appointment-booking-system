@@ -2,6 +2,8 @@ package com.kofi.booking_system.providerService.service;
 
 import com.kofi.booking_system.common.exception.ForbiddenActionException;
 import com.kofi.booking_system.common.exception.ResourceNotFoundException;
+import com.kofi.booking_system.providerService.dto.ProviderResponse;
+import com.kofi.booking_system.providerService.repository.ProviderAvailabilityRepository;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
@@ -15,6 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,7 @@ public class ProviderServiceService {
 
     private final ProviderServiceRepository repository;
     private final UserRepository userRepository;
+    private final ProviderAvailabilityRepository availabilityRepository;
 
     public ProviderServiceResponse createService(CreateServiceRequest request, String providerEmail){
         //1. fetch the user
@@ -69,6 +75,43 @@ public class ProviderServiceService {
                         s.getDurationMinutes(),
                         s.getPrice()
                 ));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProviderResponse> getAllProviders() {
+        return userRepository.findAllByRole(Role.SERVICE_PROVIDER)
+                .stream()
+                .map(this::mapToProviderResponse)
+                .toList();
+    }
+
+    private ProviderResponse mapToProviderResponse(User provider) {
+        List<ProviderServiceResponse> services = repository
+                .findByProvider(provider)  // no pagination here, just a plain list
+                .stream()
+                .map(s -> new ProviderServiceResponse(
+                        s.getId(), s.getName(), s.getDescription(),
+                        s.getDurationMinutes(), s.getPrice()
+                ))
+                .toList();
+
+        List<AvailabilityResponse> availability = availabilityRepository
+                .findByProvider(provider)
+                .stream()
+                .map(a -> new AvailabilityResponse(
+                        a.getId(), a.getDayOfWeek(), a.getStartTime(), a.getEndTime()
+                ))
+                .toList();
+
+        return ProviderResponse.builder()
+                .id(provider.getId())
+                .firstName(provider.getFirstName())
+                .lastName(provider.getLastName())
+                .email(provider.getEmail())
+                .phoneNumber(provider.getPhoneNumber())
+                .services(services)
+                .availability(availability)
+                .build();
     }
 
 }

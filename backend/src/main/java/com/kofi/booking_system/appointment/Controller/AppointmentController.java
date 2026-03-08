@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -70,5 +71,18 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getAvailableSlots(providerId, date));
     }
 
+    @GetMapping("/my-appointments")
+    public ResponseEntity<List<AppointmentResponse>> getMyAppointments(Authentication authentication) {
+
+        String email = authentication.getName();
+        String role = authentication.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow()
+                .getAuthority()
+                .replace("ROLE_", "");
+
+        return ResponseEntity.ok(appointmentService.getMyAppointments(email, role));
+    }
 
 }

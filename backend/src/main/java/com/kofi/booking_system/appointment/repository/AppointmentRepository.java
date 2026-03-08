@@ -33,4 +33,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
     long countByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
 
+    List<Appointment> findByCustomer(User customer);
+
+    List<Appointment> findByProvider(User provider);
+
 }

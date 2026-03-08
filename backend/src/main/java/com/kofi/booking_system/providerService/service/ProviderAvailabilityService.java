@@ -4,7 +4,7 @@ import com.kofi.booking_system.common.exception.BadRequestException;
 import com.kofi.booking_system.common.exception.BookingConflictException;
 import com.kofi.booking_system.common.exception.ForbiddenActionException;
 import com.kofi.booking_system.common.exception.ResourceNotFoundException;
-import com.kofi.booking_system.providerService.dto.CreateAvailabilityResponse;
+import com.kofi.booking_system.providerService.dto.AvailabilityResponse;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.UserRepository;
@@ -13,6 +13,7 @@ import com.kofi.booking_system.providerService.model.ProviderAvailability;
 import com.kofi.booking_system.providerService.repository.ProviderAvailabilityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,7 +24,8 @@ public class ProviderAvailabilityService {
     private final ProviderAvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
 
-    public CreateAvailabilityResponse createAvailability(CreateAvailabilityRequest request, String providerEmail){
+    @Transactional
+    public AvailabilityResponse createAvailability(CreateAvailabilityRequest request, String providerEmail){
         User provider = userRepository.findByEmail(providerEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Provider not found with email: " + providerEmail));
         if (provider.getRole() != Role.SERVICE_PROVIDER){
@@ -46,14 +48,15 @@ public class ProviderAvailabilityService {
                 .endTime(request.getEndTime())
                 .build();
         ProviderAvailability saved = availabilityRepository.save(availability);
-        return new  CreateAvailabilityResponse(
+        return new AvailabilityResponse(
+                saved.getId(),
                 saved.getDayOfWeek(),
                 saved.getStartTime(),
                 saved.getEndTime()
         );
     }
 
-    public List<CreateAvailabilityResponse> getAvailabilityByProvider(Long providerId){
+    public List<AvailabilityResponse> getAvailabilityByProvider(Long providerId){
         User provider = userRepository.findById(providerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Provider not found"));
         if (provider.getRole() != Role.SERVICE_PROVIDER){
@@ -61,7 +64,8 @@ public class ProviderAvailabilityService {
         }
         return availabilityRepository.findByProvider(provider)
                 .stream()
-                .map(a -> new CreateAvailabilityResponse(
+                .map(a -> new AvailabilityResponse(
+                        a.getId(),
                         a.getDayOfWeek(),
                         a.getStartTime(),
                         a.getEndTime()
@@ -69,4 +73,16 @@ public class ProviderAvailabilityService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteAvailability(Long availabilityId, String email) {
+        ProviderAvailability availability = availabilityRepository.findById(availabilityId)
+                .orElseThrow(() -> new ResourceNotFoundException("Availability not found"));
+
+        // make sure the logged-in provider owns this availability
+        if (!availability.getProvider().getEmail().equals(email)) {
+            throw new ForbiddenActionException("Not authorized to delete this availability");
+        }
+
+        availabilityRepository.delete(availability);
+    }
 }

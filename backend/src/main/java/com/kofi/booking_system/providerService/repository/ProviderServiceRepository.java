@@ -6,7 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ProviderServiceRepository extends JpaRepository<ProviderService,Long> {
 
     Page<ProviderService> findByProvider(User provider, Pageable pageable);
+
+    List<ProviderService> findByProvider(User provider);
 }

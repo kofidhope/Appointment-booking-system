@@ -304,6 +304,26 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getMyAppointments(String email, String role) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Appointment> appointments;
+
+        if (role.equals("CUSTOMER")) {
+            appointments = appointmentRepository.findByCustomer(user);
+        } else if (role.equals("SERVICE_PROVIDER")) {
+            appointments = appointmentRepository.findByProvider(user);
+        } else {
+            throw new ForbiddenActionException("Not authorized");
+        }
+
+        return appointments.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private AppointmentResponse mapToResponse(Appointment appointment) {
         return AppointmentResponse.builder()
                 .id(appointment.getId())

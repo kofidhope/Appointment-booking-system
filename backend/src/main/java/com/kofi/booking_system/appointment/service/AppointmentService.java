@@ -19,4 +19,6 @@ public interface AppointmentService {
     AppointmentResponse cancelAppointment(Long appointmentId, String providerEmail, String role);
 
     List<TimeSlot> getAvailableSlots(Long providerId, LocalDate date);
+
+    List<AppointmentResponse> getMyAppointments(String email, String role);
 }

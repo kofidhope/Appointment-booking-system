@@ -2,8 +2,8 @@ package com.kofi.booking_system.providerService.controller;
 
 import com.kofi.booking_system.providerService.dto.CreateProviderRequest;
 import com.kofi.booking_system.providerService.dto.CreateServiceRequest;
+import com.kofi.booking_system.providerService.dto.ProviderResponse;
 import com.kofi.booking_system.providerService.dto.ProviderServiceResponse;
-import com.kofi.booking_system.providerService.model.ProviderService;
 import com.kofi.booking_system.providerService.service.ProviderServiceService;
 import com.kofi.booking_system.user.model.Role;
 import com.kofi.booking_system.user.model.User;
@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,8 +43,7 @@ public class ProviderServiceController {
     public ResponseEntity<Page<ProviderServiceResponse>> getProviderServices(
             @PathVariable Long providerId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(providerService.getServicesByProvider(providerId,page,size));
     }
 
@@ -65,4 +66,9 @@ public class ProviderServiceController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+
+    @GetMapping("/providers")
+    public ResponseEntity<List<ProviderResponse>> getAllProviders() {
+        return ResponseEntity.ok(providerService.getAllProviders());
+    }
 }
