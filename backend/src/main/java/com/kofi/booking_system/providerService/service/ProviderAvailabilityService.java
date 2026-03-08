@@ -14,6 +14,8 @@ import com.kofi.booking_system.providerService.repository.ProviderAvailabilityRe
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProviderAvailabilityService {
@@ -33,8 +35,8 @@ public class ProviderAvailabilityService {
         }
 
         //validate time range
-        if (request.getStartTime().isAfter(request.getEndTime())){
-            throw new BadRequestException("Invalid time range");
+        if (!request.getStartTime().isBefore(request.getEndTime())){
+            throw new BadRequestException("Start time must be before end time");
         }
 
         ProviderAvailability availability = ProviderAvailability.builder()
@@ -49,6 +51,22 @@ public class ProviderAvailabilityService {
                 saved.getStartTime(),
                 saved.getEndTime()
         );
+    }
+
+    public List<CreateAvailabilityResponse> getAvailabilityByProvider(Long providerId){
+        User provider = userRepository.findById(providerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found"));
+        if (provider.getRole() != Role.SERVICE_PROVIDER){
+            throw new ResourceNotFoundException("Provider not found");
+        }
+        return availabilityRepository.findByProvider(provider)
+                .stream()
+                .map(a -> new CreateAvailabilityResponse(
+                        a.getDayOfWeek(),
+                        a.getStartTime(),
+                        a.getEndTime()
+                ))
+                .toList();
     }
 
 }

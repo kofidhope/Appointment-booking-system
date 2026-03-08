@@ -54,6 +54,11 @@ public class ProviderServiceService {
         User provider = userRepository.findById(providerId)
                 .orElseThrow(()-> new ResourceNotFoundException("User not found with id: " + providerId));
 
+        // make sure it's actually a provider, not a customer account
+        if(provider.getRole() != Role.SERVICE_PROVIDER){
+            throw new ResourceNotFoundException("Provider not found");
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
 
         return repository.findByProvider(provider,pageable)
