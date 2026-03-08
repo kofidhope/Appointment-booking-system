@@ -29,3 +29,19 @@ logging:
   level:
     org.springframework.mail: WARN
     jakarta.mail: WARN
+
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHk=
+  expiration: 3600000
+
+twilio:
+  account-sid: test
+  auth-token: test
+  phone-number: "+1234567890"
+
+stripe:
+  secret_key: test
+
+paystack:
+  secret-key: test
+  public-key: test
