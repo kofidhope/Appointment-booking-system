@@ -5,6 +5,8 @@ import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.appointment.repository.AppointmentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,8 @@ public class AppointmentCleanupServiceImpl implements AppointmentCleanupService 
     private final AppointmentRepository appointmentRepository;
     private final EmailTemplateService emailTemplateService;
     private final NotificationService notificationService;
+
+    private static final Logger log = LoggerFactory.getLogger(AppointmentCleanupServiceImpl.class);
 
     @Override
     public void expireOldPendingBookings() {
@@ -45,12 +49,18 @@ public class AppointmentCleanupServiceImpl implements AppointmentCleanupService 
 
     private void expireAndNotify(Appointment appointment) {
         appointment.setStatus(AppointmentStatus.EXPIRED);
-        String html = emailTemplateService.renderAppointmentExpired(appointment);
-        notificationService.sendEmail(
-                appointment.getCustomer().getEmail(),
-                "⏰ Your Appointment Has Expired",
-                html
-        );
+        appointment.setExpiredAt(LocalDateTime.now());
+        appointmentRepository.save(appointment);
+        try {
+            String html = emailTemplateService.renderAppointmentExpired(appointment);
+            notificationService.sendEmail(
+                    appointment.getCustomer().getEmail(),
+                    "⏰ Your Appointment Has Expired",
+                    html
+            );
+        }catch (Exception e) {
+            log.warn("Failed to send expiry email for appointment {}: {}", appointment.getId(), e.getMessage());
+        }
 
     }
 }

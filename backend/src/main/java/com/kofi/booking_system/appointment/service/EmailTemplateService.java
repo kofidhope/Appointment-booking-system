@@ -39,12 +39,12 @@ public class EmailTemplateService {
         return templateEngine.process("booking-confirmed", context);
     }
 
-    public String renderBookingCancelled(Appointment appointment) {
+    public String renderBookingCancelled(Appointment appointment, String cancelledBy) {
 
         Context context = new Context();
         context.setVariable("date", appointment.getAppointmentDate());
         context.setVariable("timeSlot", appointment.getTimeSlot());
-//        context.setVariable("cancelledBy", cancelledBy);
+        context.setVariable("cancelledBy", cancelledBy);
 
         return templateEngine.process("booking-cancelled", context);
     }

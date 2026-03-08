@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,6 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private static final Logger log = LoggerFactory.getLogger(AppointmentServiceImpl.class);
 
     @Override
+    @Transactional
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request, String authenticatedEmail) {
         //1. fetch the user(customer)
         User customer = userRepository.findByEmail(authenticatedEmail)
@@ -134,6 +136,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentResponse confirmAppointment(Long appointmentId, String providerEmail) {
         //1. fetch the appointment
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -172,6 +175,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentResponse rejectAppointment(Long appointmentId, String providerEmail) {
         //1. fetch the appointment
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -180,7 +184,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!appointment.getProvider().getEmail().equals(providerEmail)) {
             throw new ForbiddenActionException("Not authorized to reject this appointment");
         }
-        //3.only pending appoint can be confirmed
+        //3.only pending appoint can be rejected
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
             throw new BadRequestException("Only pending appointments can be rejected");
         }
@@ -188,7 +192,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment);
 
         try {
-            String html = emailTemplateService.renderBookingCancelled(appointment);
+            String html = emailTemplateService.renderBookingCancelled(appointment,"provider");
             notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Rejected", html);
         } catch (Exception e) {
             log.warn("Failed to send rejection notification: {}", e.getMessage());
@@ -208,6 +212,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentResponse cancelAppointment(Long appointmentId, String email,String role) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -246,7 +251,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment);
 
         try {
-            String html = emailTemplateService.renderBookingCancelled(appointment);
+            String html = emailTemplateService.renderBookingCancelled(appointment, role.equals("CUSTOMER") ? "customer" : "provider");
             notificationService.sendEmail(appointment.getCustomer().getEmail(), "❌ Appointment Cancelled", html);
             notificationService.sendEmail(appointment.getProvider().getEmail(), "❌ Appointment Cancelled", html);
         } catch (Exception e) {
@@ -276,6 +281,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TimeSlot> getAvailableSlots(Long providerId, LocalDate date) {
         // fetch the provider
         User provider = userRepository.findById(providerId)
