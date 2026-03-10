@@ -10,6 +10,9 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -27,33 +30,36 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendOtpEmail(String toEmail, String otp) throws MessagingException {
-
+    @Retryable(
+            retryFor = Exception.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000, multiplier = 2)
+    )
+    public void sendOtpEmail(String toEmail, String otp) {
         try {
-            System.out.println("Sending OTP email to: " + toEmail);
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED,"UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8");
 
-            //Thymeleaf context
             Context context = new Context();
             context.setVariable("otp", otp);
-            //process the html template
             String htmlContent = templateEngine.process("email_template", context);
-            System.out.println("Template processed successfully");
 
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject("Verify your account");
-            helper.setText(htmlContent,true);
-
-            System.out.println("About to send email...");
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
             log.info("Email sent successfully to {}", toEmail);
-        }  catch (Exception e) {
-            log.error("Email sending failed: {}", e.getMessage(), e); // THIS WILL SHOW THE REAL ERROR
-            throw new MessagingException(e.getMessage(), e);
+        } catch (Exception e) {
+            log.warn("Email attempt failed to {}: {}", toEmail, e.getMessage());
+            throw new RuntimeException(e);
         }
+    }
+
+    @Recover
+    public void recover(Exception e, String toEmail, String otp) {
+        log.error("All retry attempts exhausted for email to {}: {}", toEmail, e.getMessage());
     }
 
 

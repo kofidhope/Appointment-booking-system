@@ -3,8 +3,10 @@ package com.kofi.booking_system.auth.service;
 import com.kofi.booking_system.user.model.Token;
 import com.kofi.booking_system.user.model.User;
 import com.kofi.booking_system.user.repository.TokenRepository;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -17,10 +19,16 @@ public class OtpService {
     private final EmailService emailService;
     private final TokenRepository tokenRepository;
 
-    public void sendValidationEmail(User user) throws MessagingException {
-        var newToken = generateAndSaveActivationToken(user);
-        // TODO SEND EMAIL
-        emailService.sendOtpEmail(user.getEmail(),newToken);
+    private static final Logger log = LoggerFactory.getLogger(OtpService.class);
+
+    @Async
+    public void sendValidationEmail(User user){
+        try {
+            var newToken = generateAndSaveActivationToken(user);
+            emailService.sendOtpEmail(user.getEmail(), newToken);
+        } catch (Exception e) {
+            log.error("Failed to send validation email to {}: {}", user.getEmail(), e.getMessage());
+        }
     }
 
     private String generateAndSaveActivationToken(User user) {

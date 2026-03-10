@@ -2,6 +2,7 @@ package com.kofi.booking_system.providerService.service;
 
 import com.kofi.booking_system.common.exception.ForbiddenActionException;
 import com.kofi.booking_system.common.exception.ResourceNotFoundException;
+import com.kofi.booking_system.providerService.dto.AvailabilityResponse;
 import com.kofi.booking_system.providerService.dto.ProviderResponse;
 import com.kofi.booking_system.providerService.repository.ProviderAvailabilityRepository;
 import com.kofi.booking_system.user.model.Role;

@@ -31,12 +31,13 @@ public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
-    public void register(RegisterRequest request) throws MessagingException {
-        //1.check if the email exist
+    @Transactional
+    public void register(RegisterRequest request) {
+        // 1. check if the email exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResourceAlreadyExistsException("Email already in use");
         }
-        //.create the user
+        // 2. create the user
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -46,17 +47,12 @@ public class AuthService {
                 .role(Role.CUSTOMER)
                 .enabled(false)
                 .build();
-        //3.save the user
+        // 3. save the user
         userRepository.save(user);
 
-        try {
-            otpService.sendValidationEmail(user);
-        } catch (MessagingException e) {
-            log.error("Failed to send OTP email to {}: {}", user.getEmail(), e.getMessage(), e); // NOW WE SEE THE REAL ERROR
-            throw new MessagingException("Failed to send verification email: " + e.getMessage(), e);
-        }
+        // 4. send email in background — does not block registration
+        otpService.sendValidationEmail(user);
     }
-
 
     @Transactional
     public void verifyOtp(VerifyOtpRequest request){
@@ -86,7 +82,8 @@ public class AuthService {
         tokenRepository.save(otp);
     }
 
-    public void resendOtp(ResendOtpRequest request) throws MessagingException {
+    @Transactional
+    public void resendOtp(ResendOtpRequest request) {
         //1. fetch user
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new ResourceNotFoundException("User not found"));
@@ -104,7 +101,7 @@ public class AuthService {
         otpService.sendValidationEmail(user);
     }
 
-    public void forgotPassword(ForgotPasswordRequest request) throws MessagingException {
+    public void forgotPassword(ForgotPasswordRequest request){
         //1. fetch the user if exist
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new ResourceNotFoundException("User not found"));
@@ -117,7 +114,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void resetPassword(ResetPasswordRequest request) throws MessagingException {
+    public void resetPassword(ResetPasswordRequest request){
         //1.fetch the user
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new ResourceNotFoundException("User not found"));
