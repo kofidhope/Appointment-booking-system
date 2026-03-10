@@ -23,9 +23,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with maven
+      - name: Build project
         working-directory: backend
-        run: mvn clean install
+        run: mvn clean compile
+
+      - name: run test
+        working-directory: backend
+        run: mvn test
 
 
 
