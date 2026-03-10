@@ -26,7 +26,6 @@ jobs:
       - name: Build project
         working-directory: backend
         run: mvn clean package
-
   docker:
     runs-on: ubuntu-latest
     needs: build
