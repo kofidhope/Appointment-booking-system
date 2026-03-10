@@ -1,5 +1,5 @@
 
-name: APPOINTMENT-BOOKING CI
+name: Backend CI/CD
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: set up java
+      - name: Set up java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
@@ -25,12 +25,13 @@ jobs:
 
       - name: Build project
         working-directory: backend
-        run: mvn clean compile
+        run: mvn clean package
 
-      - name: run test
-        working-directory: backend
-        run: mvn test
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'booking-system-jar'
+          path: backend/target/*.jar
 
-
-
-
+      - name: build docker image
+        run: docker build -t appointment-booking-backend ./backend
