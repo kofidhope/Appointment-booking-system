@@ -24,6 +24,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with maven
+        working-directory: backend
         run: mvn clean install
 
 
