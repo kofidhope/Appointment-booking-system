@@ -34,14 +34,23 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/appointment-booking-backend:latest ./backend
-
-      - name: Push Docker Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/appointment-booking-backend:latest
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/appointment-booking-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/appointment-booking-backend:1.0.${{ github.run_number }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/appointment-booking-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
