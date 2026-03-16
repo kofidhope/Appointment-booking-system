@@ -63,4 +63,4 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            bash ~/deploy.sh
+            bash ~/app/Appointment-booking-system/deploy.sh
