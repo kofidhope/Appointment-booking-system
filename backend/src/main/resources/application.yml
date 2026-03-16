@@ -39,6 +39,16 @@ logging:
   level:
     org.springframework.mail: WARN
     jakarta.mail: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      enabled: true
+
 server:
   port: 8088
 
