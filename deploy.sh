@@ -9,10 +9,10 @@ echo "Pulling latest code..."
 git pull origin main
 
 echo "Pulling latest images..."
-docker compose pull
+docker-compose pull
 
 echo "Restarting containers..."
-docker compose down
-docker compose up -d
+docker-compose down
+docker-compose up -d
 
 echo "Deployment complete!"
