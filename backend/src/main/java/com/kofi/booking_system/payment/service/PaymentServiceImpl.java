@@ -178,6 +178,9 @@ public class PaymentServiceImpl implements  PaymentService {
             mac.init(secretKeySpec);
             byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
             String computed = HexFormat.of().formatHex(hash);
+            log.info("Received signature: {}", signature);
+            log.info("Computed signature: {}", computed);
+            log.info("Paystack secret key length: {}", paystackSecretKey.length());
             return computed.equals(signature);
         } catch (Exception e) {
             return false;
