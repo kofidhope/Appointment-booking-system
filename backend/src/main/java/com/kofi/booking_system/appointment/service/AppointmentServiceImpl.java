@@ -48,7 +48,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         //conflict check
         boolean exists = appointmentRepository.existsByProviderAndAppointmentDateAndTimeSlotAndStatusIn(
                 provider,request.getAppointmentDate(),request.getTimeSlot(),
-                List.of(AppointmentStatus.CONFIRMED));
+                List.of(AppointmentStatus.CONFIRMED,AppointmentStatus.PENDING));
         if (exists){
             throw new BookingConflictException("Slot already booked");
         }
