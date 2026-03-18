@@ -95,6 +95,11 @@ public class PaymentServiceImpl implements  PaymentService {
 
     @Override
     public void handlePaystackWebhook(String signature, String payload) {
+        log.info("Raw payload: {}", payload);
+        log.info("Payload length: {}", payload.length());
+        log.info("Payload bytes: {}", payload.getBytes(StandardCharsets.UTF_8).length);
+
+
         if (!isValidPaystackSignature(signature,payload)){
             throw new RuntimeException("Invalid Paystack webhook Signature");
         }
