@@ -22,7 +22,7 @@ public class AuditLogController {
     public Page<AuditLog> getAllLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         return auditLogRepository.findAll(pageable);
     }
 
@@ -31,7 +31,7 @@ public class AuditLogController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         return auditLogRepository.findAllByEntityTypeAndEntityId("Appointment", id, pageable);
     }
 }
