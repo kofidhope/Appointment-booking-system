@@ -178,7 +178,7 @@ public class PaymentServiceImpl implements  PaymentService {
     //security check: confirms webhook come from paystack
     private boolean isValidPaystackSignature(String signature, String payload) {
         try {
-            Mac mac = Mac.getInstance("HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA512");
             SecretKeySpec secretKeySpec = new SecretKeySpec(paystackSecretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             mac.init(secretKeySpec);
             byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
