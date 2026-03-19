@@ -24,14 +24,12 @@ public class RegisterRequest {
 
     @NotBlank(message = "Phone number is required")
     @Pattern(
-            regexp = "^\\+?[1-9][0-9]{7,14}$",
-            message = "Invalid phone number format"
+            regexp = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!]).{8,}$",
+            message = "Password must contain at least one uppercase letter, one number and one special character"
     )
     private String phoneNumber;
 
     @NotBlank(message = "Password is required")
     private String password;
 
-//    @NotNull(message = "Role is required")
-//    private Role role;
 }
