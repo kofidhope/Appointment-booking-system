@@ -155,26 +155,32 @@ public class PaymentServiceImpl implements  PaymentService {
 
             if (!"charge.success".equals(event.getEvent())) return;
 
+            log.info("Processing payment reference: {}", event.getData().getReference());
+
             Payment payment = paymentRepository
                     .findByProviderReference(event.getData().getReference())
                     .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+
+            log.info("Found payment: {}", payment.getId());
 
             if (payment.getStatus() == PaymentStatus.SUCCESS) return;
 
             payment.setStatus(PaymentStatus.SUCCESS);
             paymentRepository.save(payment);
-            // Auto-confirm appointment
+
             Appointment appointment = payment.getAppointment();
             appointment.setPaid(true);
 
             paymentRepository.save(payment);
             appointmentRepository.save(appointment);
 
+            log.info("Payment {} updated to SUCCESS", payment.getId());
+
         } catch (Exception e) {
+            log.error("Webhook processing error: {}", e.getMessage(), e);
             throw new RuntimeException("Webhook processing failed");
         }
     }
-
     //security check: confirms webhook come from paystack
     private boolean isValidPaystackSignature(String signature, String payload) {
         try {
