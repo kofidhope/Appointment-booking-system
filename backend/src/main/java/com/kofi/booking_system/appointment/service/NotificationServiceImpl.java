@@ -49,10 +49,15 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendSms(String to, String message) {
 
+        try {
             Message.creator(
-                    new PhoneNumber(to),     // recipient number
-                    new PhoneNumber(fromNumber), // Twilio number
-                    message                  // SMS body
+                    new PhoneNumber(to),
+                    new PhoneNumber(fromNumber),
+                    message
             ).create();
+            log.info("SMS sent successfully to: {}", to);
+        } catch (Exception e) {
+            log.error("Failed to send SMS to {}: {}", to, e.getMessage(), e);
+        }
     }
 }
