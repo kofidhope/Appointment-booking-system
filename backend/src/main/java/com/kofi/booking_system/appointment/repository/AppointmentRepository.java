@@ -37,4 +37,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
     List<Appointment> findByProvider(User provider);
 
+    List<Appointment> findByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
+
 }

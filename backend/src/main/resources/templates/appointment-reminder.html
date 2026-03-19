@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif; background:#fff7ed; padding:20px;">
+<div style="max-width:600px; margin:auto; background:#ffffff; padding:20px; border-radius:8px;">
+  <h2>⏰ Appointment Reminder</h2>
+
+  <p>Hello <strong th:text="${customerFirstName}"></strong>,</p>
+
+  <p>This is a friendly reminder that you have an appointment <strong>tomorrow!</strong> 📅</p>
+
+  <ul>
+    <li><strong>Date:</strong> <span th:text="${date}"></span></li>
+    <li><strong>Time:</strong> <span th:text="${timeSlot}"></span></li>
+    <li><strong>Provider:</strong> <span th:text="${providerName}"></span></li>
+  </ul>
+
+  <p>Please make sure to be on time. If you need to cancel, please do so as soon as possible.</p>
+
+  <hr/>
+  <small>Booking System</small>
+</div>
+</body>
+</html>
+```
+
+Commit message:
+```
+Add appointment reminder job and email template

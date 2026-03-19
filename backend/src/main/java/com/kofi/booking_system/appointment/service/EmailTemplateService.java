@@ -64,4 +64,15 @@ public class EmailTemplateService {
 
         return templateEngine.process("appointment-expired", context);
     }
+    public String renderAppointmentReminder(Appointment appointment) {
+        Context context = new Context();
+        context.setVariable("customerFirstName", appointment.getCustomer().getFirstName());
+        context.setVariable("date", appointment.getAppointmentDate());
+        context.setVariable("timeSlot", appointment.getTimeSlot());
+        context.setVariable("providerName",
+                appointment.getProvider().getFirstName() + " " +
+                        appointment.getProvider().getLastName()
+        );
+        return templateEngine.process("appointment-reminder", context);
+    }
 }
