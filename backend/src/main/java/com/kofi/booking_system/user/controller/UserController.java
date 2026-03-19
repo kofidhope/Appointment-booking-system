@@ -28,7 +28,7 @@ public class UserController {
         userService.updateCurrentUser(authentication.getName(), request);
     }
 
-    @PreAuthorize("hasRole(ADMIN)")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public UserResponse getUserById(@PathVariable Long id){
         return userService.getUserById(id);
