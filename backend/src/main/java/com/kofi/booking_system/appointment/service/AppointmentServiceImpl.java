@@ -71,9 +71,15 @@ public class AppointmentServiceImpl implements AppointmentService {
                     "📥 New Appointment Request",
                     html
             );
+            // Notify customer via SMS
+            notificationService.sendSms(
+                    appointment.getCustomer().getPhoneNumber(),
+                    "Hi " + appointment.getCustomer().getFirstName() +
+                            "! Your appointment request for " + appointment.getAppointmentDate() +
+                            " at " + appointment.getTimeSlot() + " has been received. Waiting for confirmation."
+            );
         } catch (Exception e) {
-            log.warn("Failed to send booking notification to provider {}: {}",
-                    appointment.getProvider().getEmail(), e.getMessage());
+            log.error("Failed to send booking notification: {}", e.getMessage(), e);
         }
 
 
