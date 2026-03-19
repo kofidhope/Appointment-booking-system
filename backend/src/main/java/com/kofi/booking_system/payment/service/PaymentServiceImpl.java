@@ -95,11 +95,6 @@ public class PaymentServiceImpl implements  PaymentService {
 
     @Override
     public void handlePaystackWebhook(String signature, String payload) {
-        log.info("Raw payload: {}", payload);
-        log.info("Payload length: {}", payload.length());
-        log.info("Payload bytes: {}", payload.getBytes(StandardCharsets.UTF_8).length);
-
-
         if (!isValidPaystackSignature(signature,payload)){
             throw new RuntimeException("Invalid Paystack webhook Signature");
         }
@@ -155,8 +150,6 @@ public class PaymentServiceImpl implements  PaymentService {
 
             if (!"charge.success".equals(event.getEvent())) return;
 
-            log.info("Processing payment reference: {}", event.getData().getReference());
-
             Payment payment = paymentRepository
                     .findByProviderReference(event.getData().getReference())
                     .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
@@ -189,9 +182,6 @@ public class PaymentServiceImpl implements  PaymentService {
             mac.init(secretKeySpec);
             byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
             String computed = HexFormat.of().formatHex(hash);
-            log.info("Received signature: {}", signature);
-            log.info("Computed signature: {}", computed);
-            log.info("Paystack secret key length: {}", paystackSecretKey.length());
             return computed.equals(signature);
         } catch (Exception e) {
             return false;
