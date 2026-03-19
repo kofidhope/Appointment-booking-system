@@ -158,7 +158,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             notificationService.sendSms(appointment.getCustomer().getPhoneNumber(), "Your appointment on " + appointment.getAppointmentDate() +
                     " at " + appointment.getTimeSlot() + " has been CONFIRMED.");
         } catch (Exception e) {
-            log.warn("Failed to send confirmation notification: {}", e.getMessage());
+            log.error("Failed to send confirmation notification: {}", e.getMessage());
         }
 
 
