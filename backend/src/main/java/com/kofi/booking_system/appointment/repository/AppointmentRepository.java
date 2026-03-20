@@ -39,4 +39,22 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
     List<Appointment> findByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
 
+    // Filter by customer + status
+    Page<Appointment> findByCustomerAndStatus(User customer, AppointmentStatus status, Pageable pageable);
+
+    // Filter by customer + date
+    Page<Appointment> findByCustomerAndAppointmentDate(User customer, LocalDate date, Pageable pageable);
+
+    // Filter by customer + status + date
+    Page<Appointment> findByCustomerAndStatusAndAppointmentDate(User customer, AppointmentStatus status, LocalDate date, Pageable pageable);
+
+    // Filter by provider + status
+    Page<Appointment> findByProviderAndStatus(User provider, AppointmentStatus status, Pageable pageable);
+
+    // Filter by provider + date
+    Page<Appointment> findByProviderAndAppointmentDate(User provider, LocalDate date, Pageable pageable);
+
+    // Filter by provider + status + date
+    Page<Appointment> findByProviderAndStatusAndAppointmentDate(User provider, AppointmentStatus status, LocalDate date, Pageable pageable);
+
 }

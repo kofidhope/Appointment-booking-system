@@ -315,7 +315,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponse> getMyAppointments(String email, String role, int page, int size) {
+    public List<AppointmentResponse> getMyAppointments(String email, String role, int page, int size, AppointmentStatus status, LocalDate date) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -324,9 +324,25 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
         if (role.equals("CUSTOMER")) {
-            appointments = appointmentRepository.findByCustomer(user,pageable);
+            if (status != null && date != null) {
+                appointments = appointmentRepository.findByCustomerAndStatusAndAppointmentDate(user, status, date, pageable);
+            } else if (status != null) {
+                appointments = appointmentRepository.findByCustomerAndStatus(user, status, pageable);
+            } else if (date != null) {
+                appointments = appointmentRepository.findByCustomerAndAppointmentDate(user, date, pageable);
+            } else {
+                appointments = appointmentRepository.findByCustomer(user, pageable);
+            }
         } else if (role.equals("SERVICE_PROVIDER")) {
-            appointments = appointmentRepository.findByProvider(user,pageable);
+            if (status != null && date != null) {
+                appointments = appointmentRepository.findByProviderAndStatusAndAppointmentDate(user, status, date, pageable);
+            } else if (status != null) {
+                appointments = appointmentRepository.findByProviderAndStatus(user, status, pageable);
+            } else if (date != null) {
+                appointments = appointmentRepository.findByProviderAndAppointmentDate(user, date, pageable);
+            } else {
+                appointments = appointmentRepository.findByProvider(user, pageable);
+            }
         } else {
             throw new ForbiddenActionException("Not authorized");
         }

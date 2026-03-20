@@ -2,6 +2,7 @@ package com.kofi.booking_system.appointment.Controller;
 
 import com.kofi.booking_system.appointment.dto.AppointmentResponse;
 import com.kofi.booking_system.appointment.dto.CreateAppointmentRequest;
+import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -75,7 +76,9 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponse>> getMyAppointments(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) AppointmentStatus status,
+            @RequestParam(required = false) LocalDate date) {
 
         String email = authentication.getName();
         String role = authentication.getAuthorities()
@@ -85,7 +88,7 @@ public class AppointmentController {
                 .getAuthority()
                 .replace("ROLE_", "");
 
-        return ResponseEntity.ok(appointmentService.getMyAppointments(email, role, page, size));
+        return ResponseEntity.ok(appointmentService.getMyAppointments(email, role, page, size, status, date));
     }
 
 }
