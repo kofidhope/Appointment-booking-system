@@ -20,5 +20,5 @@ public interface AppointmentService {
 
     List<TimeSlot> getAvailableSlots(Long providerId, LocalDate date);
 
-    List<AppointmentResponse> getMyAppointments(String email, String role);
+    List<AppointmentResponse> getMyAppointments(String email, String role, int page, int size);
 }

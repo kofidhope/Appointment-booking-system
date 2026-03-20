@@ -16,6 +16,10 @@ import com.kofi.booking_system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -311,16 +315,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponse> getMyAppointments(String email, String role) {
+    public List<AppointmentResponse> getMyAppointments(String email, String role, int page, int size) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        List<Appointment> appointments;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentDate").descending());
+        Page<Appointment> appointments;
+
 
         if (role.equals("CUSTOMER")) {
-            appointments = appointmentRepository.findByCustomer(user);
+            appointments = appointmentRepository.findByCustomer(user,pageable);
         } else if (role.equals("SERVICE_PROVIDER")) {
-            appointments = appointmentRepository.findByProvider(user);
+            appointments = appointmentRepository.findByProvider(user,pageable);
         } else {
             throw new ForbiddenActionException("Not authorized");
         }

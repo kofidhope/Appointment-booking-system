@@ -4,6 +4,7 @@ import com.kofi.booking_system.appointment.enums.AppointmentStatus;
 import com.kofi.booking_system.appointment.enums.TimeSlot;
 import com.kofi.booking_system.appointment.model.Appointment;
 import com.kofi.booking_system.user.model.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,9 +34,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
     long countByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
 
-    List<Appointment> findByCustomer(User customer);
-
-    List<Appointment> findByProvider(User provider);
+    Page<Appointment> findByCustomer(User customer, Pageable pageable);
+    Page<Appointment> findByProvider(User provider, Pageable pageable);
 
     List<Appointment> findByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
 

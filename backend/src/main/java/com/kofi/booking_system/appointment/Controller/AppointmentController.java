@@ -72,7 +72,10 @@ public class AppointmentController {
     }
 
     @GetMapping("/my-appointments")
-    public ResponseEntity<List<AppointmentResponse>> getMyAppointments(Authentication authentication) {
+    public ResponseEntity<List<AppointmentResponse>> getMyAppointments(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         String email = authentication.getName();
         String role = authentication.getAuthorities()
@@ -82,7 +85,7 @@ public class AppointmentController {
                 .getAuthority()
                 .replace("ROLE_", "");
 
-        return ResponseEntity.ok(appointmentService.getMyAppointments(email, role));
+        return ResponseEntity.ok(appointmentService.getMyAppointments(email, role, page, size));
     }
 
 }
