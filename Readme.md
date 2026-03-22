@@ -89,7 +89,7 @@ sequenceDiagram
 ---
 
 ## 🗄️ Database Schema
-![Database Schema](docs/db-schema.png)
+![Database Schema](docs/dbschema.png)
 
 ---
 
