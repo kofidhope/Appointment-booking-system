@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 //disable csrf before using jwt
-                .csrf(csfr-> csfr.disable())
+                .csrf(csrf -> csrf.disable())
                 //stateless session
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //Define which endpoints are public
@@ -36,13 +36,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/payments/webhook/paystack").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 //Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -56,6 +60,7 @@ public class SecurityConfig {
     }
 
     //AuthenticationManager to authenticate login requests
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
         return config.getAuthenticationManager();
     }
