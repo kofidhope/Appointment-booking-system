@@ -63,6 +63,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/swagger-resources") ||
                 path.startsWith("/v3/api-docs") ||
+                path.startsWith("/api-docs") ||
                 path.startsWith("/webjars") ||
                 path.startsWith("/static") ||
                 path.startsWith("/css") ||
@@ -112,7 +113,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // Skip some endpoints
-        if (path.contains("swagger") || path.contains("api-docs")) {
+        if (shouldSkip(path)) {
             filterChain.doFilter(request, response);
             return;
         }
