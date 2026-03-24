@@ -60,8 +60,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     // Skip Non-Important Endpoints
     private boolean shouldSkip(String path) {
         return path.startsWith("/actuator") ||
-                path.startsWith("/swagger") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/swagger-resources") ||
                 path.startsWith("/v3/api-docs") ||
+                path.startsWith("/webjars") ||
                 path.startsWith("/static") ||
                 path.startsWith("/css") ||
                 path.startsWith("/js") ||
