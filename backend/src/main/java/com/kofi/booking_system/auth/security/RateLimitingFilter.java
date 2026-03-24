@@ -112,7 +112,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // Skip some endpoints
-        if (shouldSkip(path)) {
+        if (path.contains("swagger") || path.contains("api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
