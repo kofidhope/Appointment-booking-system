@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +25,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserService;
+
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/api/v1/auth/",
+            "/v3/api-docs",
+            "/swagger-ui",
+            "/swagger-resources",
+            "/webjars",
+            "/actuator"
+    );
 
     @Override
     protected void doFilterInternal(
@@ -33,6 +43,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (request.getServletPath().startsWith("/api/v1/auth")){
             filterChain.doFilter(request,response);
+            return;
+        }
+
+        String path = request.getRequestURI();
+
+        // Skip JWT check for public paths
+        boolean isPublic = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+        if (isPublic) {
+            filterChain.doFilter(request, response);
             return;
         }
 
