@@ -53,14 +53,21 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
     ports:
       - "9090:9090"
+    networks:
+      - spring
 
   grafana:
     image: grafana/grafana
     container_name: grafana
     ports:
       - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    networks:
+      - spring
 
   backend:
     image: kofiforson/appointment-booking-backend:latest
@@ -111,6 +118,10 @@ services:
 
 volumes:
   postgres:
+    driver: local
+  grafana:
+    driver: local
+  prometheus:
     driver: local
 
 networks:
